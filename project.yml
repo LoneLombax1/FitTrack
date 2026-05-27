@@ -1,0 +1,48 @@
+name: FitTrack
+options:
+  bundleIdPrefix: com.fittrack
+  deploymentTarget:
+    iOS: "17.0"
+  xcodeVersion: "15.0"
+configs:
+  Debug: debug
+  Release: release
+targets:
+  FitTrack:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: FitTrack
+    settings:
+      base:
+        SWIFT_VERSION: 5.9
+        PRODUCT_BUNDLE_IDENTIFIER: com.fittrack.app
+        INFOPLIST_FILE: FitTrack/Info.plist
+        DEVELOPMENT_TEAM: ""
+    info:
+      path: FitTrack/Info.plist
+      properties:
+        UILaunchScreen:
+          UIColorName: ""
+        CFBundleURLTypes:
+          - CFBundleURLSchemes:
+              - fittrack
+        NSPhotoLibraryUsageDescription: "FitTrack saves progress photos to track your body composition over time."
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+          UISceneConfigurations:
+            UIWindowSceneSessionRoleApplication:
+              - UISceneConfigurationName: "Default Configuration"
+                UISceneDelegateClassName: "$(PRODUCT_MODULE_NAME).SceneDelegate"
+  FitTrackTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: FitTrackTests
+    settings:
+      base:
+        SWIFT_VERSION: 5.9
+    dependencies:
+      - target: FitTrack
