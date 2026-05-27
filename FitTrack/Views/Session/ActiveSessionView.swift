@@ -81,6 +81,7 @@ func prepareSession(
                 deloadThreshold: deloadThreshold
             )
         }
+        guard exercise.targetSets > 0 else { continue }
         for i in 1...exercise.targetSets {
             let log = SetLog(exerciseName: exercise.name, setNumber: i, targetReps: exercise.targetReps, weight: suggestedWeight)
             session.setLogs.append(log)

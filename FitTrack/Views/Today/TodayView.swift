@@ -1,6 +1,12 @@
 import SwiftUI
 import SwiftData
 
+private struct ActiveSessionContext: Identifiable {
+    let id = UUID()
+    let session: TrainingSession
+    let template: WorkoutTemplate
+}
+
 struct TodayView: View {
     @Environment(\.modelContext) private var context
     @EnvironmentObject private var whoopService: WhoopService
@@ -11,9 +17,7 @@ struct TodayView: View {
     @Query(sort: \TrainingSession.date, order: .reverse) private var recentSessions: [TrainingSession]
     @Query(sort: \WhoopCycleCache.date, order: .reverse) private var cachedCycles: [WhoopCycleCache]
 
-    @State private var activeSession: TrainingSession?
-    @State private var activeTemplate: WorkoutTemplate?
-    @State private var showSession = false
+    @State private var sessionContext: ActiveSessionContext?
 
     private var activeProgram: Program? { activePrograms.first }
 
@@ -52,15 +56,13 @@ struct TodayView: View {
             }
             .navigationTitle("Today")
             .task { await refreshWhoop() }
-            .fullScreenCover(isPresented: $showSession) {
-                if let session = activeSession, let template = activeTemplate {
-                    ActiveSessionView(
-                        session: session,
-                        template: template,
-                        incrementKg: incrementKg,
-                        recoveryScore: todayCycle?.recoveryScore
-                    )
-                }
+            .fullScreenCover(item: $sessionContext) { ctx in
+                ActiveSessionView(
+                    session: ctx.session,
+                    template: ctx.template,
+                    incrementKg: incrementKg,
+                    recoveryScore: todayCycle?.recoveryScore
+                )
             }
         }
     }
@@ -111,9 +113,7 @@ struct TodayView: View {
             deloadThreshold: deloadThreshold,
             context: context
         )
-        activeSession = session
-        activeTemplate = template
-        showSession = true
+        sessionContext = ActiveSessionContext(session: session, template: template)
     }
 
     private func logActivity(slot: WeeklyScheduleSlot) {
@@ -126,9 +126,9 @@ struct TodayView: View {
         context.insert(session)
     }
 
-    private func refreshWhoop() async {
+    @MainActor private func refreshWhoop() async {
         guard whoopService.isConnected else { return }
-        guard todayCycle == nil || todayCycle!.isStale else { return }
+        guard todayCycle?.isStale != false else { return }
         guard let result = try? await whoopService.fetchTodayCycle() else { return }
         if let score = result.recoveryScore, let strain = result.strainScore {
             let cache = WhoopCycleCache(date: Date(), recoveryScore: score, strainScore: strain)
