@@ -24,7 +24,11 @@ final class WhoopService: NSObject, ObservableObject {
     @Published var isConnected: Bool = false
     @Published var lastCycle: WhoopCycleResult?
 
-    override init() {
+    // Fix #1: Strong reference to prevent ARC from deallocating the session
+    private var authSession: ASWebAuthenticationSession?
+
+    // Fix #5: private override init()
+    private override init() {
         super.init()
         isConnected = loadToken() != nil
     }
@@ -48,6 +52,8 @@ final class WhoopService: NSObject, ObservableObject {
         ]
 
         let authorizationURL = components.url!
+
+        // Fix #1: Assign to self.authSession so ARC keeps it alive for the duration
         let callbackURL: URL = try await withCheckedThrowingContinuation { cont in
             let session = ASWebAuthenticationSession(
                 url: authorizationURL,
@@ -59,8 +65,16 @@ final class WhoopService: NSObject, ObservableObject {
             }
             session.presentationContextProvider = presentationContext
             session.prefersEphemeralWebBrowserSession = false
+            self.authSession = session
             session.start()
         }
+        // Fix #1: Clear strong reference after continuation resolves
+        authSession = nil
+
+        // Fix #4: Validate state parameter against original to prevent CSRF
+        let returnedState = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)?
+            .queryItems?.first(where: { $0.name == "state" })?.value
+        guard returnedState == state else { throw WhoopError.invalidState }
 
         guard let code = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)?
             .queryItems?.first(where: { $0.name == "code" })?.value
@@ -83,7 +97,11 @@ final class WhoopService: NSObject, ObservableObject {
         guard let token = loadToken() else { throw WhoopError.notAuthenticated }
         var request = URLRequest(url: URL(string: cycleURL)!)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        let (data, _) = try await URLSession.shared.data(for: request)
+        // Fix #2: Capture and check HTTP status code
+        let (data, response) = try await URLSession.shared.data(for: request)
+        if let http = response as? HTTPURLResponse, http.statusCode == 401 {
+            throw WhoopError.notAuthenticated
+        }
         let result = try WhoopService.parseCycleResponse(data: data)
         lastCycle = result
         return result
@@ -108,38 +126,51 @@ final class WhoopService: NSObject, ObservableObject {
 
     // MARK: - PKCE Helpers
 
-    private func generateCodeVerifier() -> String {
-        var bytes = [UInt8](repeating: 0, count: 32)
-        _ = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
-        return Data(bytes).base64EncodedString()
+    // Fix #6: Shared base64url encoding helper
+    private func base64URLEncoded(_ data: Data) -> String {
+        data.base64EncodedString()
             .replacingOccurrences(of: "+", with: "-")
             .replacingOccurrences(of: "/", with: "_")
             .replacingOccurrences(of: "=", with: "")
+    }
+
+    private func generateCodeVerifier() -> String {
+        var bytes = [UInt8](repeating: 0, count: 32)
+        _ = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
+        // Fix #6: Use shared helper
+        return base64URLEncoded(Data(bytes))
     }
 
     private func generateCodeChallenge(from verifier: String) -> String {
         let data = Data(verifier.utf8)
         var digest = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
         data.withUnsafeBytes { _ = CC_SHA256($0.baseAddress, CC_LONG(data.count), &digest) }
-        return Data(digest).base64EncodedString()
-            .replacingOccurrences(of: "+", with: "-")
-            .replacingOccurrences(of: "/", with: "_")
-            .replacingOccurrences(of: "=", with: "")
+        // Fix #6: Use shared helper
+        return base64URLEncoded(Data(digest))
     }
 
     private func exchangeCode(_ code: String, codeVerifier: String) async throws -> String {
         var request = URLRequest(url: URL(string: tokenURL)!)
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        // Fix #3: Percent-encode form body values per RFC 6749
+        let encodedClientId     = clientId.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? clientId
+        let encodedCode         = code.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? code
+        let encodedRedirectURI  = redirectURI.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? redirectURI
+        let encodedCodeVerifier = codeVerifier.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? codeVerifier
         let body = [
             "grant_type=authorization_code",
-            "client_id=\(clientId)",
-            "code=\(code)",
-            "redirect_uri=\(redirectURI)",
-            "code_verifier=\(codeVerifier)",
+            "client_id=\(encodedClientId)",
+            "code=\(encodedCode)",
+            "redirect_uri=\(encodedRedirectURI)",
+            "code_verifier=\(encodedCodeVerifier)",
         ].joined(separator: "&")
         request.httpBody = body.data(using: .utf8)
-        let (data, _) = try await URLSession.shared.data(for: request)
+        // Fix #2: Capture and check HTTP status code
+        let (data, response) = try await URLSession.shared.data(for: request)
+        if let http = response as? HTTPURLResponse, http.statusCode == 401 {
+            throw WhoopError.notAuthenticated
+        }
         struct TokenResponse: Decodable { let access_token: String }
         return try JSONDecoder().decode(TokenResponse.self, from: data).access_token
     }
@@ -183,12 +214,15 @@ enum WhoopError: LocalizedError {
     case notAuthenticated
     case noCallbackURL
     case noAuthCode
+    // Fix #4: Added invalidState case for CSRF protection
+    case invalidState
 
     var errorDescription: String? {
         switch self {
         case .notAuthenticated: return "Not connected to Whoop. Connect in Settings."
         case .noCallbackURL:    return "Whoop login did not return a callback URL."
         case .noAuthCode:       return "Whoop login did not return an authorization code."
+        case .invalidState:     return "Whoop login failed: state parameter mismatch (possible CSRF attack)."
         }
     }
 }
