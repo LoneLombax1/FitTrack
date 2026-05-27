@@ -18,7 +18,7 @@ enum FatigueEngine {
     }
 
     /// Volume contribution from a gym exercise to a specific muscle group.
-    static func volume(muscle: MuscleGroup, isPrimary: Bool, sets: Int, reps: Int) -> Double {
+    static func volume(isPrimary: Bool, sets: Int, reps: Int) -> Double {
         let base = Double(sets * reps)
         return isPrimary ? base : base * 0.5
     }
@@ -33,8 +33,9 @@ enum FatigueEngine {
     }
 
     /// Returns the most recent training date per muscle group across a rolling window.
-    static func lastTrainedDates(from sessions: [TrainingSessionSnapshot], windowDays: Int = 7) -> [MuscleGroup: Date] {
-        let cutoff = Calendar.current.date(byAdding: .day, value: -windowDays, to: Date())!
+    static func lastTrainedDates(from sessions: [TrainingSessionSnapshot], windowDays: Int = 7, today: Date = Date()) -> [MuscleGroup: Date] {
+        let cutoffRaw = Calendar.current.date(byAdding: .day, value: -windowDays, to: today) ?? today
+        let cutoff = Calendar.current.startOfDay(for: cutoffRaw)
         var result: [MuscleGroup: Date] = [:]
         for session in sessions where session.date >= cutoff {
             for muscle in session.musclesWorked {
