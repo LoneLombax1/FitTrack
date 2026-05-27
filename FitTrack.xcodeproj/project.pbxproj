@@ -8,7 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		0FAF501E57E8ACCCBBF42EFF /* ProgressView_.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF61B26752D1BC85526FEA3F /* ProgressView_.swift */; };
+		1795430E9A3CBAA3C35AF1B7 /* ProgressionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF0770B2D6544C92E53920A /* ProgressionEngine.swift */; };
+		1E9F2B886DF78B42489B1E25 /* ProgressionEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1673D99480469EF0BEE096D /* ProgressionEngineTests.swift */; };
 		204EAD8278DC978DFFE0D94A /* ProgressPhoto.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B7620D17FAD69A52845619 /* ProgressPhoto.swift */; };
+		231CF428115D1842272AB952 /* WhoopService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE35A7D1DF0E83E0F2106AEE /* WhoopService.swift */; };
 		2866A0315C8F389A005277A2 /* FitTrackApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DC92EA64FA76C7A468BA3F9 /* FitTrackApp.swift */; };
 		395B02C1167BD0F1603EF22C /* MusclesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1395A309E7B41CFAC273C3FC /* MusclesView.swift */; };
 		44375FE3BA5EA314A16669C5 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C193CFBF0E935E1AE57B268 /* Enums.swift */; };
@@ -55,9 +58,12 @@
 		772774B1F9F53A64524EFF30 /* SetLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetLog.swift; sourceTree = "<group>"; };
 		78BBEAF9028421FC18250367 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		96CD5D54C31FEE1647D88E05 /* ProgramView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgramView.swift; sourceTree = "<group>"; };
+		A1673D99480469EF0BEE096D /* ProgressionEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressionEngineTests.swift; sourceTree = "<group>"; };
+		ABF0770B2D6544C92E53920A /* ProgressionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressionEngine.swift; sourceTree = "<group>"; };
 		B0B7620D17FAD69A52845619 /* ProgressPhoto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressPhoto.swift; sourceTree = "<group>"; };
 		CF61B26752D1BC85526FEA3F /* ProgressView_.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressView_.swift; sourceTree = "<group>"; };
 		DC2F9030C5A7CBA26A5E186C /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
+		DE35A7D1DF0E83E0F2106AEE /* WhoopService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhoopService.swift; sourceTree = "<group>"; };
 		F37F171E80511BEA1762BB39 /* WorkoutTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutTemplate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -83,6 +89,7 @@
 			isa = PBXGroup;
 			children = (
 				51491A6531EEC94443A3A8C0 /* .gitkeep */,
+				ABF0770B2D6544C92E53920A /* ProgressionEngine.swift */,
 			);
 			path = Engines;
 			sourceTree = "<group>";
@@ -91,6 +98,7 @@
 			isa = PBXGroup;
 			children = (
 				4DABCE4EC3777CA1B9296D49 /* FitTrackTests.swift */,
+				A1673D99480469EF0BEE096D /* ProgressionEngineTests.swift */,
 			);
 			path = FitTrackTests;
 			sourceTree = "<group>";
@@ -166,6 +174,7 @@
 			isa = PBXGroup;
 			children = (
 				78BBEAF9028421FC18250367 /* .gitkeep */,
+				DE35A7D1DF0E83E0F2106AEE /* WhoopService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -264,6 +273,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E8137A42911035F3E90E44F2 /* FitTrackTests.swift in Sources */,
+				1E9F2B886DF78B42489B1E25 /* ProgressionEngineTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -281,11 +291,13 @@
 				FCDB049B9A18F61D4B43C7AC /* ProgramView.swift in Sources */,
 				204EAD8278DC978DFFE0D94A /* ProgressPhoto.swift in Sources */,
 				0FAF501E57E8ACCCBBF42EFF /* ProgressView_.swift in Sources */,
+				1795430E9A3CBAA3C35AF1B7 /* ProgressionEngine.swift in Sources */,
 				FBE546EF14CC6070427BCB3E /* SetLog.swift in Sources */,
 				DA55DA4F4C51BCB9DD9794E8 /* TodayView.swift in Sources */,
 				A6C7BA2D21AC80AF3916D5CC /* TrainingSession.swift in Sources */,
 				74097297EC2E955C597E1F84 /* WeighIn.swift in Sources */,
 				C7892E638E4FAF34CD75176F /* WhoopCycleCache.swift in Sources */,
+				231CF428115D1842272AB952 /* WhoopService.swift in Sources */,
 				88472F9EF350462B7CC89221 /* WorkoutTemplate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -324,13 +336,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.fittrack.FitTrackTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.fittrack.tests;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.9;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -461,13 +474,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.fittrack.FitTrackTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.fittrack.tests;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.9;
 				TARGETED_DEVICE_FAMILY = "1,2";
