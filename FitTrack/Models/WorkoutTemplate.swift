@@ -38,6 +38,8 @@ final class TemplateExercise {
         set { secondaryMusclesRaw = newValue.map { $0.rawValue } }
     }
 
+    @Relationship(inverse: \WorkoutTemplate.exercises) var workoutTemplate: WorkoutTemplate?
+
     init(name: String, targetSets: Int, targetReps: Int, orderIndex: Int) {
         self.id = UUID()
         self.name = name

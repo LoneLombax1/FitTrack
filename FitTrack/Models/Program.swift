@@ -38,11 +38,22 @@ final class Program {
 final class WeeklyScheduleSlot {
     var id: UUID
     var dayOfWeek: Int          // 1=Mon, 7=Sun
-    var type: SessionType
+    var typeRaw: String
     var activityName: String?
     var muscleGroupsRaw: [String]
-    var intensity: Intensity
+    var intensityRaw: String
     @Relationship var workoutTemplate: WorkoutTemplate?
+    @Relationship(inverse: \Program.scheduleSlots) var program: Program?
+
+    var type: SessionType {
+        get { SessionType(rawValue: typeRaw) ?? .rest }
+        set { typeRaw = newValue.rawValue }
+    }
+
+    var intensity: Intensity {
+        get { Intensity(rawValue: intensityRaw) ?? .moderate }
+        set { intensityRaw = newValue.rawValue }
+    }
 
     var muscleGroups: [MuscleGroup] {
         get { muscleGroupsRaw.compactMap { MuscleGroup(rawValue: $0) } }
@@ -52,8 +63,8 @@ final class WeeklyScheduleSlot {
     init(dayOfWeek: Int, type: SessionType) {
         self.id = UUID()
         self.dayOfWeek = dayOfWeek
-        self.type = type
+        self.typeRaw = type.rawValue
         self.muscleGroupsRaw = []
-        self.intensity = .moderate
+        self.intensityRaw = Intensity.moderate.rawValue
     }
 }

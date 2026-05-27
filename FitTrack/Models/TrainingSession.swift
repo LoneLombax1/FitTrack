@@ -5,7 +5,7 @@ import SwiftData
 final class TrainingSession {
     var id: UUID
     var date: Date
-    var type: SessionType
+    var typeRaw: String
     var programId: UUID?
     var weekNumber: Int?
 
@@ -18,7 +18,17 @@ final class TrainingSession {
     // Activity session fields
     var activityName: String?
     var muscleGroupsRaw: [String]
-    var intensity: Intensity?
+    var intensityRaw: String?
+
+    var type: SessionType {
+        get { SessionType(rawValue: typeRaw) ?? .rest }
+        set { typeRaw = newValue.rawValue }
+    }
+
+    var intensity: Intensity? {
+        get { intensityRaw.flatMap { Intensity(rawValue: $0) } }
+        set { intensityRaw = newValue?.rawValue }
+    }
 
     var muscleGroups: [MuscleGroup] {
         get { muscleGroupsRaw.compactMap { MuscleGroup(rawValue: $0) } }
@@ -28,7 +38,7 @@ final class TrainingSession {
     init(date: Date, type: SessionType) {
         self.id = UUID()
         self.date = date
-        self.type = type
+        self.typeRaw = type.rawValue
         self.setLogs = []
         self.muscleGroupsRaw = []
     }

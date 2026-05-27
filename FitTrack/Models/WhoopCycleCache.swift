@@ -4,7 +4,7 @@ import SwiftData
 @Model
 final class WhoopCycleCache {
     var id: UUID
-    var date: Date           // day key — store start of day
+    @Attribute(.unique) var date: Date           // day key — store start of day
     var recoveryScore: Int   // 0–100
     var strainScore: Double  // 0.0–21.0
     var fetchedAt: Date

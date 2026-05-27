@@ -11,6 +11,8 @@ final class SetLog {
     var weight: Double       // kg
     var completed: Bool
 
+    @Relationship(inverse: \TrainingSession.setLogs) var session: TrainingSession?
+
     init(exerciseName: String, setNumber: Int, targetReps: Int, weight: Double) {
         self.id = UUID()
         self.exerciseName = exerciseName
