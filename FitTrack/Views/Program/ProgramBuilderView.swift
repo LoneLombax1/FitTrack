@@ -33,7 +33,7 @@ struct ProgramBuilderView: View {
             }
             .navigationDestination(isPresented: $showScheduleEditor) {
                 if let program = createdProgram {
-                    WeeklyScheduleGridView(program: program, onFinish: { dismiss() })
+                    WeeklyScheduleGridView(program: program)
                 }
             }
         }

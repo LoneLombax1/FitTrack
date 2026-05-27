@@ -3,22 +3,32 @@ import SwiftData
 
 struct WeeklyScheduleGridView: View {
     @Bindable var program: Program
-    var onFinish: () -> Void
-
     @Environment(\.modelContext) private var context
+    @Environment(\.dismiss) private var dismiss
+    @Query private var allTemplates: [WorkoutTemplate]
 
     private let dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
     var body: some View {
         List {
             ForEach(1...7, id: \.self) { day in
-                let slot = slotForDay(day)
-                NavigationLink(destination: ScheduleSlotEditorView(slot: slot, templates: allTemplates)) {
+                if let slot = program.scheduleSlots.first(where: { $0.dayOfWeek == day }) {
+                    NavigationLink(destination: ScheduleSlotEditorView(slot: slot, templates: allTemplates)) {
+                        HStack {
+                            Text(dayNames[day - 1])
+                                .frame(width: 40, alignment: .leading)
+                            Spacer()
+                            SlotTypeBadge(type: slot.type)
+                        }
+                    }
+                } else {
                     HStack {
                         Text(dayNames[day - 1])
                             .frame(width: 40, alignment: .leading)
                         Spacer()
-                        SlotTypeBadge(type: slot.type)
+                        Text("Not set")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
                 }
             }
@@ -26,24 +36,19 @@ struct WeeklyScheduleGridView: View {
         .navigationTitle("Weekly Schedule")
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
-                Button("Done") { onFinish() }
+                Button("Done") { dismiss() }
             }
         }
+        .onAppear { ensureAllSlotsExist() }
     }
 
-    private var allTemplates: [WorkoutTemplate] {
-        var seen = Set<UUID>()
-        return program.scheduleSlots.compactMap(\.workoutTemplate).filter { seen.insert($0.id).inserted }
-    }
-
-    private func slotForDay(_ day: Int) -> WeeklyScheduleSlot {
-        if let existing = program.scheduleSlots.first(where: { $0.dayOfWeek == day }) {
-            return existing
+    private func ensureAllSlotsExist() {
+        for day in 1...7 {
+            guard !program.scheduleSlots.contains(where: { $0.dayOfWeek == day }) else { continue }
+            let slot = WeeklyScheduleSlot(dayOfWeek: day, type: .rest)
+            context.insert(slot)
+            program.scheduleSlots.append(slot)
         }
-        let slot = WeeklyScheduleSlot(dayOfWeek: day, type: .rest)
-        context.insert(slot)
-        program.scheduleSlots.append(slot)
-        return slot
     }
 }
 
@@ -69,8 +74,6 @@ private struct SlotTypeBadge: View {
             .background(color, in: Capsule())
     }
 }
-
-// MARK: - ScheduleSlotEditorView
 
 struct ScheduleSlotEditorView: View {
     @Bindable var slot: WeeklyScheduleSlot

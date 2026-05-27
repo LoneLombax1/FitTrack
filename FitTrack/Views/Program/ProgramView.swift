@@ -69,28 +69,22 @@ private struct ProgramRow: View {
     }
 }
 
-// MARK: - ProgramDetailView
-
 struct ProgramDetailView: View {
     @Bindable var program: Program
     @Environment(\.modelContext) private var context
+    @Query private var allTemplates: [WorkoutTemplate]
     @State private var showAddTemplate = false
-
-    private var uniqueTemplates: [WorkoutTemplate] {
-        var seen = Set<UUID>()
-        return program.scheduleSlots.compactMap(\.workoutTemplate).filter { seen.insert($0.id).inserted }
-    }
 
     var body: some View {
         List {
             Section("Weekly Schedule") {
                 NavigationLink("Edit schedule") {
-                    WeeklyScheduleGridView(program: program, onFinish: {})
+                    WeeklyScheduleGridView(program: program)
                 }
             }
 
             Section("Workout Templates") {
-                ForEach(uniqueTemplates) { template in
+                ForEach(allTemplates) { template in
                     NavigationLink(template.name) {
                         WorkoutTemplateEditorView(template: template)
                     }
@@ -106,8 +100,6 @@ struct ProgramDetailView: View {
         }
     }
 }
-
-// MARK: - AddTemplateView
 
 struct AddTemplateView: View {
     let program: Program
