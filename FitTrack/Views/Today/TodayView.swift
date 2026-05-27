@@ -18,6 +18,8 @@ struct TodayView: View {
     @Query(sort: \WhoopCycleCache.date, order: .reverse) private var cachedCycles: [WhoopCycleCache]
 
     @State private var sessionContext: ActiveSessionContext?
+    @State private var showProgramComplete = false
+    @State private var showSettings = false
 
     private var activeProgram: Program? { activePrograms.first }
 
@@ -63,6 +65,25 @@ struct TodayView: View {
                     incrementKg: incrementKg,
                     recoveryScore: todayCycle?.recoveryScore
                 )
+            }
+            .onAppear {
+                if activeProgram?.isComplete == true {
+                    showProgramComplete = true
+                }
+            }
+            .sheet(isPresented: $showProgramComplete) {
+                if let program = activeProgram {
+                    ProgramCompleteView(program: program)
+                }
+            }
+            .sheet(isPresented: $showSettings) {
+                SettingsView()
+                    .environmentObject(WhoopService.shared)
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Settings", systemImage: "gearshape") { showSettings = true }
+                }
             }
         }
     }
