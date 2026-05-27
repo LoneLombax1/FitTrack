@@ -15,10 +15,17 @@ struct ProgramCompleteView: View {
 
     private var prsHit: Int {
         let gymSessions = programSessions.filter { $0.type == .gym }
+        guard gymSessions.count >= 2 else { return 0 }
         var prs = 0
-        for name in Set(gymSessions.flatMap { $0.setLogs.map(\.exerciseName) }) {
-            let weights = gymSessions.flatMap { $0.setLogs.filter { $0.exerciseName == name } }.map(\.weight)
-            if let first = weights.first, let last = weights.last, last > first { prs += 1 }
+        let exerciseNames = Set(gymSessions.flatMap { $0.setLogs.map(\.exerciseName) })
+        for name in exerciseNames {
+            let firstMax = gymSessions.first.flatMap { s in
+                s.setLogs.filter { $0.exerciseName == name }.map(\.weight).max()
+            }
+            let lastMax = gymSessions.last.flatMap { s in
+                s.setLogs.filter { $0.exerciseName == name }.map(\.weight).max()
+            }
+            if let first = firstMax, let last = lastMax, last > first { prs += 1 }
         }
         return prs
     }

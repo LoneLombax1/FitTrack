@@ -66,8 +66,8 @@ struct TodayView: View {
                     recoveryScore: todayCycle?.recoveryScore
                 )
             }
-            .onAppear {
-                if activeProgram?.isComplete == true {
+            .onChange(of: activeProgram?.id) {
+                if activeProgram?.isComplete == true && !showProgramComplete {
                     showProgramComplete = true
                 }
             }

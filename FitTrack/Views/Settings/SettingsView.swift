@@ -6,6 +6,7 @@ struct SettingsView: View {
     @AppStorage("progressionIncrement") private var incrementKg: Double = 2.5
     @AppStorage("deloadThreshold") private var deloadThreshold: Int = 50
     @AppStorage("programDurationWeeks") private var programDurationWeeks: Int = 8
+    @State private var windowContext = WindowContextProvider()
 
     var body: some View {
         NavigationStack {
@@ -18,8 +19,7 @@ struct SettingsView: View {
                         Label("Not connected", systemImage: "xmark.circle").foregroundStyle(.secondary)
                         Button("Connect Whoop") {
                             Task {
-                                let ctx = WindowContextProvider()
-                                try? await whoopService.connect(presentationContext: ctx)
+                                try? await whoopService.connect(presentationContext: windowContext)
                             }
                         }
                     }
