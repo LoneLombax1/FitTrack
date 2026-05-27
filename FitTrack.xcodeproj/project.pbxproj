@@ -15,10 +15,12 @@
 		2866A0315C8F389A005277A2 /* FitTrackApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DC92EA64FA76C7A468BA3F9 /* FitTrackApp.swift */; };
 		395B02C1167BD0F1603EF22C /* MusclesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1395A309E7B41CFAC273C3FC /* MusclesView.swift */; };
 		44375FE3BA5EA314A16669C5 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C193CFBF0E935E1AE57B268 /* Enums.swift */; };
+		4D39F9033A665C7E3618F1C3 /* FatigueEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF89F112206AC4AAC6EB7C1 /* FatigueEngine.swift */; };
 		74097297EC2E955C597E1F84 /* WeighIn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F3D61DA3805880562E8B155 /* WeighIn.swift */; };
 		88472F9EF350462B7CC89221 /* WorkoutTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37F171E80511BEA1762BB39 /* WorkoutTemplate.swift */; };
 		9CA6D69A09D4FCAAE9A17B99 /* Goal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F553DD5640C20BEC154327 /* Goal.swift */; };
 		A6C7BA2D21AC80AF3916D5CC /* TrainingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF0B9A76FF339D334212280 /* TrainingSession.swift */; };
+		AA038A735CD73C833DC8A48C /* FatigueEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41EA42BCFFE5350AA4C0DDE6 /* FatigueEngineTests.swift */; };
 		B8B238219BC3A301C43C8BC8 /* Program.swift in Sources */ = {isa = PBXBuildFile; fileRef = 532E552656DA8E88D64B421E /* Program.swift */; };
 		C7892E638E4FAF34CD75176F /* WhoopCycleCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0864779BACC378FF4A91EC56 /* WhoopCycleCache.swift */; };
 		DA55DA4F4C51BCB9DD9794E8 /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2F9030C5A7CBA26A5E186C /* TodayView.swift */; };
@@ -48,6 +50,7 @@
 		1F3D61DA3805880562E8B155 /* WeighIn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeighIn.swift; sourceTree = "<group>"; };
 		22F553DD5640C20BEC154327 /* Goal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Goal.swift; sourceTree = "<group>"; };
 		2BF0B9A76FF339D334212280 /* TrainingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingSession.swift; sourceTree = "<group>"; };
+		41EA42BCFFE5350AA4C0DDE6 /* FatigueEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FatigueEngineTests.swift; sourceTree = "<group>"; };
 		432FFE0145EBA7A0B7E69BF7 /* FitTrackTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = FitTrackTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C193CFBF0E935E1AE57B268 /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
 		4DABCE4EC3777CA1B9296D49 /* FitTrackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitTrackTests.swift; sourceTree = "<group>"; };
@@ -63,6 +66,7 @@
 		B0B7620D17FAD69A52845619 /* ProgressPhoto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressPhoto.swift; sourceTree = "<group>"; };
 		CF61B26752D1BC85526FEA3F /* ProgressView_.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressView_.swift; sourceTree = "<group>"; };
 		DC2F9030C5A7CBA26A5E186C /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
+		DCF89F112206AC4AAC6EB7C1 /* FatigueEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FatigueEngine.swift; sourceTree = "<group>"; };
 		DE35A7D1DF0E83E0F2106AEE /* WhoopService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhoopService.swift; sourceTree = "<group>"; };
 		F37F171E80511BEA1762BB39 /* WorkoutTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutTemplate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -89,6 +93,7 @@
 			isa = PBXGroup;
 			children = (
 				51491A6531EEC94443A3A8C0 /* .gitkeep */,
+				DCF89F112206AC4AAC6EB7C1 /* FatigueEngine.swift */,
 				ABF0770B2D6544C92E53920A /* ProgressionEngine.swift */,
 			);
 			path = Engines;
@@ -97,6 +102,7 @@
 		4FC078C617CF21EF7D1371C9 /* FitTrackTests */ = {
 			isa = PBXGroup;
 			children = (
+				41EA42BCFFE5350AA4C0DDE6 /* FatigueEngineTests.swift */,
 				4DABCE4EC3777CA1B9296D49 /* FitTrackTests.swift */,
 				A1673D99480469EF0BEE096D /* ProgressionEngineTests.swift */,
 			);
@@ -272,6 +278,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA038A735CD73C833DC8A48C /* FatigueEngineTests.swift in Sources */,
 				E8137A42911035F3E90E44F2 /* FitTrackTests.swift in Sources */,
 				1E9F2B886DF78B42489B1E25 /* ProgressionEngineTests.swift in Sources */,
 			);
@@ -283,6 +290,7 @@
 			files = (
 				E2A9005073CCC0A45AF2A412 /* ContentView.swift in Sources */,
 				44375FE3BA5EA314A16669C5 /* Enums.swift in Sources */,
+				4D39F9033A665C7E3618F1C3 /* FatigueEngine.swift in Sources */,
 				2866A0315C8F389A005277A2 /* FitTrackApp.swift in Sources */,
 				9CA6D69A09D4FCAAE9A17B99 /* Goal.swift in Sources */,
 				F4C0AFE8F7A8DD2AE18A299F /* HistoryView.swift in Sources */,
