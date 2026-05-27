@@ -8,12 +8,21 @@
 
 /* Begin PBXBuildFile section */
 		0FAF501E57E8ACCCBBF42EFF /* ProgressView_.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF61B26752D1BC85526FEA3F /* ProgressView_.swift */; };
+		204EAD8278DC978DFFE0D94A /* ProgressPhoto.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B7620D17FAD69A52845619 /* ProgressPhoto.swift */; };
 		2866A0315C8F389A005277A2 /* FitTrackApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DC92EA64FA76C7A468BA3F9 /* FitTrackApp.swift */; };
 		395B02C1167BD0F1603EF22C /* MusclesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1395A309E7B41CFAC273C3FC /* MusclesView.swift */; };
+		44375FE3BA5EA314A16669C5 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C193CFBF0E935E1AE57B268 /* Enums.swift */; };
+		74097297EC2E955C597E1F84 /* WeighIn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F3D61DA3805880562E8B155 /* WeighIn.swift */; };
+		88472F9EF350462B7CC89221 /* WorkoutTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37F171E80511BEA1762BB39 /* WorkoutTemplate.swift */; };
+		9CA6D69A09D4FCAAE9A17B99 /* Goal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F553DD5640C20BEC154327 /* Goal.swift */; };
+		A6C7BA2D21AC80AF3916D5CC /* TrainingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF0B9A76FF339D334212280 /* TrainingSession.swift */; };
+		B8B238219BC3A301C43C8BC8 /* Program.swift in Sources */ = {isa = PBXBuildFile; fileRef = 532E552656DA8E88D64B421E /* Program.swift */; };
+		C7892E638E4FAF34CD75176F /* WhoopCycleCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0864779BACC378FF4A91EC56 /* WhoopCycleCache.swift */; };
 		DA55DA4F4C51BCB9DD9794E8 /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2F9030C5A7CBA26A5E186C /* TodayView.swift */; };
 		E2A9005073CCC0A45AF2A412 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F80E5C7596B0A9EC35F385E /* ContentView.swift */; };
 		E8137A42911035F3E90E44F2 /* FitTrackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DABCE4EC3777CA1B9296D49 /* FitTrackTests.swift */; };
 		F4C0AFE8F7A8DD2AE18A299F /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACFCF9B1E8DCBB5EB1B0F23 /* HistoryView.swift */; };
+		FBE546EF14CC6070427BCB3E /* SetLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 772774B1F9F53A64524EFF30 /* SetLog.swift */; };
 		FCDB049B9A18F61D4B43C7AC /* ProgramView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96CD5D54C31FEE1647D88E05 /* ProgramView.swift */; };
 /* End PBXBuildFile section */
 
@@ -29,19 +38,27 @@
 
 /* Begin PBXFileReference section */
 		053108AC8BBB9B65EBA44741 /* FitTrack.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = FitTrack.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0864779BACC378FF4A91EC56 /* WhoopCycleCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhoopCycleCache.swift; sourceTree = "<group>"; };
 		0ACFCF9B1E8DCBB5EB1B0F23 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		125578C49FC616DBEE8F83AF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		1395A309E7B41CFAC273C3FC /* MusclesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusclesView.swift; sourceTree = "<group>"; };
+		1F3D61DA3805880562E8B155 /* WeighIn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeighIn.swift; sourceTree = "<group>"; };
+		22F553DD5640C20BEC154327 /* Goal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Goal.swift; sourceTree = "<group>"; };
+		2BF0B9A76FF339D334212280 /* TrainingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingSession.swift; sourceTree = "<group>"; };
 		432FFE0145EBA7A0B7E69BF7 /* FitTrackTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = FitTrackTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4C193CFBF0E935E1AE57B268 /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
 		4DABCE4EC3777CA1B9296D49 /* FitTrackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitTrackTests.swift; sourceTree = "<group>"; };
 		4DC92EA64FA76C7A468BA3F9 /* FitTrackApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitTrackApp.swift; sourceTree = "<group>"; };
 		51491A6531EEC94443A3A8C0 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		532E552656DA8E88D64B421E /* Program.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Program.swift; sourceTree = "<group>"; };
 		5F80E5C7596B0A9EC35F385E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		772774B1F9F53A64524EFF30 /* SetLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetLog.swift; sourceTree = "<group>"; };
 		78BBEAF9028421FC18250367 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
-		7D89DB354D9565DADA3B1EB4 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		96CD5D54C31FEE1647D88E05 /* ProgramView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgramView.swift; sourceTree = "<group>"; };
+		B0B7620D17FAD69A52845619 /* ProgressPhoto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressPhoto.swift; sourceTree = "<group>"; };
 		CF61B26752D1BC85526FEA3F /* ProgressView_.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressView_.swift; sourceTree = "<group>"; };
 		DC2F9030C5A7CBA26A5E186C /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
+		F37F171E80511BEA1762BB39 /* WorkoutTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutTemplate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -156,7 +173,15 @@
 		F797FA91D40F8592BAA6597C /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				7D89DB354D9565DADA3B1EB4 /* .gitkeep */,
+				4C193CFBF0E935E1AE57B268 /* Enums.swift */,
+				22F553DD5640C20BEC154327 /* Goal.swift */,
+				532E552656DA8E88D64B421E /* Program.swift */,
+				B0B7620D17FAD69A52845619 /* ProgressPhoto.swift */,
+				772774B1F9F53A64524EFF30 /* SetLog.swift */,
+				2BF0B9A76FF339D334212280 /* TrainingSession.swift */,
+				1F3D61DA3805880562E8B155 /* WeighIn.swift */,
+				0864779BACC378FF4A91EC56 /* WhoopCycleCache.swift */,
+				F37F171E80511BEA1762BB39 /* WorkoutTemplate.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -247,12 +272,21 @@
 			buildActionMask = 2147483647;
 			files = (
 				E2A9005073CCC0A45AF2A412 /* ContentView.swift in Sources */,
+				44375FE3BA5EA314A16669C5 /* Enums.swift in Sources */,
 				2866A0315C8F389A005277A2 /* FitTrackApp.swift in Sources */,
+				9CA6D69A09D4FCAAE9A17B99 /* Goal.swift in Sources */,
 				F4C0AFE8F7A8DD2AE18A299F /* HistoryView.swift in Sources */,
 				395B02C1167BD0F1603EF22C /* MusclesView.swift in Sources */,
+				B8B238219BC3A301C43C8BC8 /* Program.swift in Sources */,
 				FCDB049B9A18F61D4B43C7AC /* ProgramView.swift in Sources */,
+				204EAD8278DC978DFFE0D94A /* ProgressPhoto.swift in Sources */,
 				0FAF501E57E8ACCCBBF42EFF /* ProgressView_.swift in Sources */,
+				FBE546EF14CC6070427BCB3E /* SetLog.swift in Sources */,
 				DA55DA4F4C51BCB9DD9794E8 /* TodayView.swift in Sources */,
+				A6C7BA2D21AC80AF3916D5CC /* TrainingSession.swift in Sources */,
+				74097297EC2E955C597E1F84 /* WeighIn.swift in Sources */,
+				C7892E638E4FAF34CD75176F /* WhoopCycleCache.swift in Sources */,
+				88472F9EF350462B7CC89221 /* WorkoutTemplate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
