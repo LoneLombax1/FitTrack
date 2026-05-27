@@ -117,9 +117,39 @@ SwiftUI views
 ### MuscleGroup (enum)
 `chest`, `back`, `shoulders`, `biceps`, `triceps`, `legs`, `core`, `fullBody`
 
+### WeighIn
+| Field | Type | Notes |
+|-------|------|-------|
+| id | UUID | |
+| date | Date | |
+| bodyWeightKg | Double | |
+| bodyFatPercent | Double? | Manual entry |
+
+### ProgressPhoto
+| Field | Type | Notes |
+|-------|------|-------|
+| id | UUID | |
+| date | Date | |
+| weighInId | UUID? | Optionally linked to a weigh-in |
+| filePath | String | Stored in app's documents directory |
+| notes | String? | |
+
+### Goal
+| Field | Type | Notes |
+|-------|------|-------|
+| id | UUID | |
+| type | Enum | `.strength`, `.bodyComposition` |
+| title | String | e.g. "Bench Press 100kg" |
+| targetValue | Double | kg for both types |
+| targetDate | Date? | Optional deadline |
+| linkedExerciseName | String? | Strength goals only — matches SetLog.exerciseName |
+| linkedMetric | Enum? | Body comp only: `.bodyWeight`, `.bodyFatPercent` |
+| isAchieved | Bool | Set automatically when target met |
+| achievedDate | Date? | |
+
 ---
 
-## Navigation: 4-Tab Layout
+## Navigation: 5-Tab Layout
 
 | Tab | Purpose |
 |-----|---------|
@@ -127,6 +157,7 @@ SwiftUI views
 | **Program** | Weekly schedule grid, 8-week progress, edit program |
 | **History** | Chronological session log, per-exercise charts |
 | **Muscles** | 7-day fatigue per muscle group, suggestions |
+| **Progress** | Weight trend, body fat %, progress photos, goals |
 
 ---
 
@@ -213,6 +244,30 @@ Muscles tab shows a bar per muscle group with colour coding and a plain-English 
   - **Generate next program**: pre-fills all exercises with accumulated weight targets; optionally adds 1 set to compound lifts
   - **Build from scratch**: blank program builder
 - User can dismiss and extend the current program at any time
+
+---
+
+## Progress Tab
+
+### Body Tracking
+- **Weigh-in entry**: log body weight + optional body fat % — shown as a trend graph over time
+- **Progress photos**: taken or imported from Photos library, stored in app documents directory, optionally linked to a weigh-in date
+- Photos displayed as a chronological grid; tap to expand and compare two photos side-by-side
+
+### Goals
+Two goal types, both tracked automatically:
+
+**Strength goal** (e.g. "Bench Press 100kg")
+- Linked to an exercise name
+- App watches SetLogs — when any set records `weight >= targetValue` with `repsCompleted >= 1`, goal is marked achieved
+- Progress shown as: best weight to date vs. target, with a sparkline of recent sessions
+
+**Body composition goal** (e.g. "Reach 85kg by Aug 2026")
+- Linked to `.bodyWeight` or `.bodyFatPercent`
+- Progress tracked against WeighIn history
+- Trend line projected forward based on recent rate of change
+
+Goals show on the Progress tab with a progress bar, current value, target value, and target date countdown. Achieved goals are archived but remain visible.
 
 ---
 
