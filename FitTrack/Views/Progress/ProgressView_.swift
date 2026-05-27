@@ -50,6 +50,20 @@ struct ProgressView_: View {
                     }
                 }
             }
+            let bodyFatData = weighIns.compactMap { weighIn -> (date: Date, pct: Double)? in
+                guard let bf = weighIn.bodyFatPercent else { return nil }
+                return (date: weighIn.date, pct: bf)
+            }
+            if bodyFatData.count > 1 {
+                Section("Body Fat %") {
+                    Chart(bodyFatData, id: \.date) { point in
+                        LineMark(x: .value("Date", point.date), y: .value("%", point.pct))
+                        PointMark(x: .value("Date", point.date), y: .value("%", point.pct))
+                    }
+                    .frame(height: 100)
+                    .chartYAxisLabel("%")
+                }
+            }
         } else {
             Section("Weight") {
                 Text("No weigh-ins yet").foregroundStyle(.secondary)
@@ -83,7 +97,7 @@ struct GoalRowView: View {
         switch goal.type {
         case .strength:
             guard let name = goal.linkedExerciseName else { return nil }
-            let allLogs = sessions.flatMap(\.setLogs).filter { $0.exerciseName == name && $0.completed }
+            let allLogs = sessions.flatMap(\.setLogs).filter { $0.exerciseName == name && $0.completed && $0.repsCompleted >= 1 }
             return allLogs.map(\.weight).max()
         case .bodyComposition:
             switch goal.linkedMetric {

@@ -56,17 +56,20 @@ struct ProgressPhotoGridView: View {
         return Image(uiImage: ui)
     }
 
-    @MainActor
     private func savePhoto(_ item: PhotosPickerItem) async {
         guard let data = try? await item.loadTransferable(type: Data.self) else { return }
         let dir = FileManager.default
             .urls(for: .documentDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("progress_photos")
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         let fileName = "\(UUID().uuidString).jpg"
         let url = dir.appendingPathComponent(fileName)
-        try? data.write(to: url)
+        await Task.detached(priority: .utility) {
+            try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+            try? data.write(to: url)
+        }.value
         let record = ProgressPhoto(date: Date(), fileName: fileName)
-        context.insert(record)
+        await MainActor.run {
+            context.insert(record)
+        }
     }
 }
