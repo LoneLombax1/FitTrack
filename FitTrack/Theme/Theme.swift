@@ -1,6 +1,5 @@
 // FitTrack/Theme/Theme.swift
 import SwiftUI
-import UIKit
 
 enum Theme {
 
@@ -35,25 +34,15 @@ enum Theme {
     // MARK: - Typography
     enum Fonts {
         static func orbitron(_ size: CGFloat, weight: Font.Weight = .bold) -> Font {
-            if UIFont(name: "Orbitron-Bold", size: size) != nil {
-                return Font.custom("Orbitron-Bold", size: size)
-            }
-            return .system(size: size, weight: weight, design: .rounded)
+            Font.custom("Orbitron-Bold", size: size)
         }
 
         static func rajdhani(_ size: CGFloat) -> Font {
-            if UIFont(name: "Rajdhani-SemiBold", size: size) != nil {
-                return Font.custom("Rajdhani-SemiBold", size: size)
-            }
-            return .system(size: size, weight: .semibold, design: .rounded)
+            Font.custom("Rajdhani-SemiBold", size: size)
         }
 
         static func mono(_ size: CGFloat, bold: Bool = false) -> Font {
-            let name = bold ? "JetBrainsMono-Bold" : "JetBrainsMono-Regular"
-            if UIFont(name: name, size: size) != nil {
-                return Font.custom(name, size: size)
-            }
-            return .system(size: size, weight: bold ? .bold : .regular, design: .monospaced)
+            Font.custom(bold ? "JetBrainsMono-Bold" : "JetBrainsMono-Regular", size: size)
         }
     }
 
