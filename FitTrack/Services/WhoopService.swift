@@ -20,8 +20,7 @@ final class WhoopService: NSObject, ObservableObject {
 
     static let shared = WhoopService()
 
-    // Register at developer.whoop.com — replace with real client ID before use
-    private let clientId    = "YOUR_WHOOP_CLIENT_ID"
+    private let clientId    = "98becc67-fddb-4c3e-8a09-22562c081ba2"
     private let redirectURI = "fittrack://whoop/callback"
     private let authURL     = "https://api.prod.whoop.com/oauth/oauth2/auth"
     private let tokenURL    = "https://api.prod.whoop.com/oauth/oauth2/token"
