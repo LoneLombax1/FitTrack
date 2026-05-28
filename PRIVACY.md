@@ -1,0 +1,3 @@
+# Privacy Policy
+
+FitTrack does not collect, transmit, or store any personal data on external servers. All workout data, progress metrics, and program information are stored exclusively on your device using Apple's SwiftData framework. If you choose to connect your Whoop device, FitTrack accesses your recovery scores and strain data solely to personalise workout intensity recommendations; this data is cached locally on your device and is never shared with third parties. You can disconnect Whoop at any time in Settings, which immediately removes all cached Whoop data from your device. For any privacy questions, contact tristan@westfieldbury.com.
