@@ -8,6 +8,13 @@ struct WhoopCycleResult {
     let strainScore: Double?
 }
 
+struct WhoopWorkoutResult {
+    let start: Date
+    let end: Date
+    let strain: Double?
+    var durationMinutes: Int { max(1, Int(end.timeIntervalSince(start) / 60)) }
+}
+
 @MainActor
 final class WhoopService: NSObject, ObservableObject {
 
@@ -19,6 +26,7 @@ final class WhoopService: NSObject, ObservableObject {
     private let authURL     = "https://api.prod.whoop.com/oauth/oauth2/auth"
     private let tokenURL    = "https://api.prod.whoop.com/oauth/oauth2/token"
     private let cycleURL    = "https://api.prod.whoop.com/developer/v1/cycle"
+    private let workoutURL  = "https://api.prod.whoop.com/developer/v1/activity/workout"
     private let keychainKey = "com.fittrack.whoop.accessToken"
 
     @Published var isConnected: Bool = false
@@ -102,6 +110,27 @@ final class WhoopService: NSObject, ObservableObject {
         return result
     }
 
+    func fetchLatestWorkout() async throws -> WhoopWorkoutResult? {
+        guard let token = loadToken() else { throw WhoopError.notAuthenticated }
+        let today = Calendar.current.startOfDay(for: Date())
+        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today)!
+        let fmt = ISO8601DateFormatter()
+        var components = URLComponents(string: workoutURL)!
+        components.queryItems = [
+            .init(name: "start_time", value: fmt.string(from: today)),
+            .init(name: "end_time",   value: fmt.string(from: tomorrow)),
+            .init(name: "limit",      value: "25"),
+        ]
+        var request = URLRequest(url: components.url!)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        let (data, response) = try await URLSession.shared.data(for: request)
+        if let http = response as? HTTPURLResponse {
+            if http.statusCode == 401 { throw WhoopError.notAuthenticated }
+            if !(200...299).contains(http.statusCode) { throw WhoopError.httpError(http.statusCode) }
+        }
+        return try WhoopService.parseLatestWorkout(data: data)
+    }
+
     // MARK: - Parsing (static — unit testable without an instance)
 
     nonisolated static func parseCycleResponse(data: Data) throws -> WhoopCycleResult {
@@ -117,6 +146,26 @@ final class WhoopService: NSObject, ObservableObject {
             recoveryScore: decoded.score?.recovery_score,
             strainScore: decoded.score?.strain
         )
+    }
+
+    nonisolated static func parseLatestWorkout(data: Data) throws -> WhoopWorkoutResult? {
+        struct Record: Decodable {
+            let start: String
+            let end: String
+            struct Score: Decodable { let strain: Double? }
+            let score: Score?
+        }
+        struct Response: Decodable { let records: [Record] }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        let fmt = ISO8601DateFormatter()
+        fmt.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return decoded.records
+            .compactMap { r -> WhoopWorkoutResult? in
+                guard let s = fmt.date(from: r.start), let e = fmt.date(from: r.end) else { return nil }
+                return WhoopWorkoutResult(start: s, end: e, strain: r.score?.strain)
+            }
+            .sorted { $0.start > $1.start }
+            .first
     }
 
     // MARK: - PKCE Helpers

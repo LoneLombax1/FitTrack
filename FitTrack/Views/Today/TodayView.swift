@@ -241,6 +241,14 @@ struct TodayView: View {
         session.programId = activeProgram?.id
         session.weekNumber = activeProgram?.currentWeek
         context.insert(session)
+        if whoopService.isConnected {
+            Task {
+                if let workout = try? await whoopService.fetchLatestWorkout() {
+                    session.durationMinutes = workout.durationMinutes
+                    session.date = workout.start
+                }
+            }
+        }
     }
 
     @MainActor private func refreshWhoop() async {
