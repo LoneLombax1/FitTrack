@@ -4,6 +4,11 @@ import SwiftData
 struct SetLogRowView: View {
     @Bindable var log: SetLog
 
+    @State private var weightText = ""
+    @State private var repsText = ""
+    @FocusState private var weightFocused: Bool
+    @FocusState private var repsFocused: Bool
+
     var body: some View {
         HStack(spacing: 10) {
             Text("SET \(log.setNumber)")
@@ -13,7 +18,7 @@ struct SetLogRowView: View {
                 .frame(width: 46, alignment: .leading)
 
             HStack(spacing: 3) {
-                TextField("0", value: $log.weight, format: .number)
+                TextField("0", text: $weightText)
                     .keyboardType(.decimalPad)
                     .frame(width: 58)
                     .font(Theme.Fonts.mono(15, bold: true))
@@ -23,13 +28,22 @@ struct SetLogRowView: View {
                     .padding(.vertical, 5)
                     .background(Theme.Colors.surfaceDeep)
                     .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .focused($weightFocused)
+                    .onChange(of: weightFocused) { _, focused in
+                        if focused {
+                            weightText = ""
+                        } else {
+                            if let v = Double(weightText), v > 0 { log.weight = v }
+                            weightText = log.weight.formatted()
+                        }
+                    }
                 Text("lbs")
                     .font(Theme.Fonts.rajdhani(10))
                     .foregroundStyle(Theme.Colors.textMuted)
             }
 
             HStack(spacing: 3) {
-                TextField("\(log.targetReps)", value: $log.repsCompleted, format: .number)
+                TextField("0", text: $repsText)
                     .keyboardType(.numberPad)
                     .frame(width: 36)
                     .font(Theme.Fonts.mono(15, bold: true))
@@ -39,6 +53,15 @@ struct SetLogRowView: View {
                     .padding(.vertical, 5)
                     .background(Theme.Colors.surfaceDeep)
                     .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .focused($repsFocused)
+                    .onChange(of: repsFocused) { _, focused in
+                        if focused {
+                            repsText = ""
+                        } else {
+                            if let v = Int(repsText), v > 0 { log.repsCompleted = v }
+                            repsText = "\(log.repsCompleted)"
+                        }
+                    }
                 Text("/ \(log.targetReps)")
                     .font(Theme.Fonts.rajdhani(10))
                     .foregroundStyle(Theme.Colors.textMuted)
@@ -51,6 +74,7 @@ struct SetLogRowView: View {
                     log.completed.toggle()
                     if log.completed && log.repsCompleted == 0 {
                         log.repsCompleted = log.targetReps
+                        repsText = "\(log.targetReps)"
                     }
                 }
             } label: {
@@ -65,5 +89,9 @@ struct SetLogRowView: View {
         .padding(.vertical, 10)
         .background(log.completed ? Theme.Colors.cyan.opacity(0.05) : Color.clear)
         .animation(Theme.Anim.spring, value: log.completed)
+        .onAppear {
+            weightText = log.weight.formatted()
+            repsText = "\(log.repsCompleted)"
+        }
     }
 }

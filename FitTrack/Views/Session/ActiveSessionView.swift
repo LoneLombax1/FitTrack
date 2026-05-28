@@ -18,10 +18,24 @@ struct ActiveSessionView: View {
                 Theme.Colors.bg.ignoresSafeArea()
                 ScrollView {
                     VStack(spacing: Theme.Layout.cardGap) {
+                        HStack {
+                            Text("STARTED")
+                                .font(Theme.Fonts.rajdhani(11))
+                                .kerning(1.5)
+                                .foregroundStyle(Theme.Colors.textMuted)
+                            Spacer()
+                            Text(session.date.formatted(.dateTime.hour().minute()))
+                                .font(Theme.Fonts.mono(13, bold: true))
+                                .foregroundStyle(Theme.Colors.textSecondary)
+                        }
+                        .padding(.horizontal, Theme.Layout.screenPadding)
+                        .padding(.top, 4)
+                        .appearAnimation(delay: 0)
+
                         if let recovery = recoveryScore {
                             RecoveryBadgeView(score: recovery)
                                 .padding(.horizontal, Theme.Layout.screenPadding)
-                                .appearAnimation(delay: 0)
+                                .appearAnimation(delay: 0.03)
                         }
 
                         ForEach(Array(template.sortedExercises.enumerated()), id: \.element.id) { index, exercise in
