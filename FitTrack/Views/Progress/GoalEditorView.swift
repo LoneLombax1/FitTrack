@@ -27,7 +27,7 @@ struct GoalEditorView: View {
                 }
                 .pickerStyle(.segmented)
 
-                TextField("Goal title (e.g. Bench 100kg)", text: $title)
+                TextField("Goal title (e.g. Bench 225lbs)", text: $title)
 
                 HStack {
                     TextField("Target value", text: $targetValue).keyboardType(.decimalPad)
@@ -51,6 +51,8 @@ struct GoalEditorView: View {
                     DatePicker("Deadline", selection: $targetDate, displayedComponents: .date)
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(Theme.Colors.bg)
             .navigationTitle("New Goal")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
@@ -60,11 +62,13 @@ struct GoalEditorView: View {
                 }
             }
         }
+        .toolbarBackground(Theme.Colors.bg, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
     }
 
     private var unitLabel: String {
-        if goalType == .strength { return "kg" }
-        return linkedMetric == .bodyFatPercent ? "%" : "kg"
+        if goalType == .strength { return "lbs" }
+        return linkedMetric == .bodyFatPercent ? "%" : "lbs"
     }
 
     private func save() {
