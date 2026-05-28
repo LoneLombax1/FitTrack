@@ -28,6 +28,12 @@ struct TodayView: View {
         return activeProgram?.scheduleSlots.first { $0.dayOfWeek == mondayBased }
     }
 
+    private var thisWeekSessions: [TrainingSession] {
+        recentSessions.filter {
+            Calendar.current.isDate($0.date, equalTo: Date(), toGranularity: .weekOfYear)
+        }
+    }
+
     private var todayCycle: WhoopCycleCache? {
         let today = Calendar.current.startOfDay(for: Date())
         return cachedCycles.first { Calendar.current.startOfDay(for: $0.date) == today }
@@ -77,6 +83,13 @@ struct TodayView: View {
                             statsRow(program: program)
                                 .padding(.horizontal, Theme.Layout.screenPadding)
                                 .appearAnimation(delay: 0.15)
+                        }
+
+                        // This week
+                        if !thisWeekSessions.isEmpty {
+                            thisWeekSection
+                                .padding(.horizontal, Theme.Layout.screenPadding)
+                                .appearAnimation(delay: 0.2)
                         }
 
                         Spacer(minLength: 20)
@@ -203,6 +216,58 @@ struct TodayView: View {
                     }
                 }
             }
+        }
+    }
+
+    @ViewBuilder private var thisWeekSection: some View {
+        NeonCard(borderColor: Theme.Colors.borderSubtle) {
+            VStack(alignment: .leading, spacing: 10) {
+                SectionHeader(title: "This Week")
+                VStack(spacing: 6) {
+                    ForEach(thisWeekSessions) { session in
+                        HStack(spacing: 10) {
+                            Text(session.date.formatted(.dateTime.weekday(.abbreviated)).uppercased())
+                                .font(Theme.Fonts.mono(10))
+                                .foregroundStyle(Theme.Colors.textMuted)
+                                .frame(width: 30, alignment: .leading)
+                            Text(session.workoutTemplateName ?? session.activityName ?? session.type.rawValue.capitalized)
+                                .font(.system(size: 13))
+                                .foregroundStyle(Theme.Colors.textPrimary)
+                                .lineLimit(1)
+                            Spacer()
+                            sessionStat(session)
+                        }
+                        if session.id != thisWeekSessions.last?.id {
+                            Divider().background(Theme.Colors.borderSubtle).opacity(0.5)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder private func sessionStat(_ session: TrainingSession) -> some View {
+        switch session.type {
+        case .gym:
+            let completed = session.setLogs.filter(\.completed).count
+            Text("\(completed) sets")
+                .font(Theme.Fonts.mono(11))
+                .foregroundStyle(Theme.Colors.purple)
+        case .sport, .competition:
+            let color: Color = session.type == .competition ? Color(hex: "FF6B00") : Theme.Colors.cyan
+            if let mins = session.durationMinutes {
+                Text(mins >= 60 ? "\(mins / 60)h \(mins % 60)m" : "\(mins)m")
+                    .font(Theme.Fonts.mono(11))
+                    .foregroundStyle(color)
+            } else {
+                Text(session.intensity?.rawValue.capitalized ?? "—")
+                    .font(Theme.Fonts.mono(11))
+                    .foregroundStyle(color)
+            }
+        case .rest:
+            Text("Rest")
+                .font(Theme.Fonts.mono(11))
+                .foregroundStyle(Theme.Colors.textMuted)
         }
     }
 

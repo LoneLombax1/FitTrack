@@ -123,32 +123,20 @@ struct SessionDetailView: View {
     let session: TrainingSession
     @State private var showDeleteConfirm = false
 
+    private var navTitle: String {
+        session.workoutTemplateName ?? session.activityName ?? session.type.rawValue.capitalized
+    }
+
     var body: some View {
         ZStack {
             Theme.Colors.bg.ignoresSafeArea()
-            List {
-                let grouped = Dictionary(grouping: session.setLogs, by: \.exerciseName)
-                ForEach(grouped.keys.sorted(), id: \.self) { name in
-                    Section {
-                        ForEach(grouped[name, default: []].sorted { $0.setNumber < $1.setNumber }) { log in
-                            HStack {
-                                Text("Set \(log.setNumber)")
-                                    .font(Theme.Fonts.rajdhani(12))
-                                    .foregroundStyle(Theme.Colors.textMuted)
-                                Spacer()
-                                Text("\(log.weight, format: .number) lbs × \(log.repsCompleted) reps")
-                                    .font(Theme.Fonts.mono(13))
-                                    .foregroundStyle(Theme.Colors.textPrimary)
-                                Image(systemName: log.completed ? "checkmark.circle.fill" : "xmark.circle")
-                                    .foregroundStyle(log.completed ? Theme.Colors.cyan : Color(hex: "FF3B5C"))
-                            }
-                        }
-                    } header: { SectionHeader(title: name) }
-                }
+            if session.type == .gym {
+                gymDetailList
+            } else {
+                activityDetailScroll
             }
-            .scrollContentBackground(.hidden)
         }
-        .navigationTitle(session.workoutTemplateName ?? "Session")
+        .navigationTitle(navTitle)
         .toolbarBackground(Theme.Colors.bg, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
         .toolbar {
@@ -166,6 +154,91 @@ struct SessionDetailView: View {
             }
             Button("Cancel", role: .cancel) {}
         }
+    }
+
+    private var gymDetailList: some View {
+        List {
+            let grouped = Dictionary(grouping: session.setLogs, by: \.exerciseName)
+            ForEach(grouped.keys.sorted(), id: \.self) { name in
+                Section {
+                    ForEach(grouped[name, default: []].sorted { $0.setNumber < $1.setNumber }) { log in
+                        HStack {
+                            Text("Set \(log.setNumber)")
+                                .font(Theme.Fonts.rajdhani(12))
+                                .foregroundStyle(Theme.Colors.textMuted)
+                            Spacer()
+                            Text("\(log.weight, format: .number) lbs × \(log.repsCompleted) reps")
+                                .font(Theme.Fonts.mono(13))
+                                .foregroundStyle(Theme.Colors.textPrimary)
+                            Image(systemName: log.completed ? "checkmark.circle.fill" : "xmark.circle")
+                                .foregroundStyle(log.completed ? Theme.Colors.cyan : Color(hex: "FF3B5C"))
+                        }
+                    }
+                } header: { SectionHeader(title: name) }
+            }
+        }
+        .scrollContentBackground(.hidden)
+    }
+
+    private var activityDetailScroll: some View {
+        let typeColor: Color = session.type == .competition ? Color(hex: "FF6B00") : Theme.Colors.cyan
+        return ScrollView {
+            VStack(spacing: Theme.Layout.cardGap) {
+                NeonCard(borderColor: typeColor.opacity(0.4)) {
+                    VStack(alignment: .leading, spacing: 14) {
+                        SectionHeader(title: session.type == .competition ? "Competition" : "Activity", color: typeColor)
+
+                        detailRow(label: "DATE", value: session.date.formatted(date: .long, time: .shortened))
+
+                        if let duration = session.durationMinutes {
+                            detailRow(label: "DURATION", value: formatDuration(duration))
+                        }
+
+                        if let intensity = session.intensity {
+                            detailRow(label: "INTENSITY", value: intensity.rawValue.capitalized)
+                        }
+
+                        if !session.muscleGroups.isEmpty {
+                            detailRow(
+                                label: "MUSCLE GROUPS",
+                                value: session.muscleGroups.map { $0.rawValue.capitalized }.joined(separator: ", ")
+                            )
+                        }
+
+                        if let week = session.weekNumber {
+                            detailRow(label: "PROGRAM WEEK", value: "Week \(week)")
+                        }
+                    }
+                }
+                .padding(.horizontal, Theme.Layout.screenPadding)
+                .padding(.top, 8)
+
+                Spacer(minLength: 20)
+            }
+        }
+    }
+
+    @ViewBuilder private func detailRow(label: String, value: String) -> some View {
+        HStack(alignment: .top) {
+            Text(label)
+                .font(Theme.Fonts.rajdhani(11))
+                .kerning(1.2)
+                .foregroundStyle(Theme.Colors.textMuted)
+                .frame(width: 120, alignment: .leading)
+            Text(value)
+                .font(.system(size: 14))
+                .foregroundStyle(Theme.Colors.textPrimary)
+            Spacer()
+        }
+    }
+
+    private func formatDuration(_ minutes: Int) -> String {
+        if minutes >= 60 {
+            let h = minutes / 60
+            let m = minutes % 60
+            return m > 0 ? "\(h)h \(m)m" : "\(h)h"
+        }
+        return "\(minutes) min"
     }
 }
 

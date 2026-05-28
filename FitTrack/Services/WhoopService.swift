@@ -27,7 +27,7 @@ final class WhoopService: NSObject, ObservableObject {
     private let tokenURL    = "https://api.prod.whoop.com/oauth/oauth2/token"
     private let cycleURL    = "https://api.prod.whoop.com/developer/v1/cycle"
     private let cycleV2URL  = "https://api.prod.whoop.com/developer/v2/cycle"
-    private let workoutURL  = "https://api.prod.whoop.com/developer/v1/activity/workout"
+    private let workoutURL  = "https://api.prod.whoop.com/developer/v2/activity/workout"
     private let sleepURL    = "https://api.prod.whoop.com/developer/v2/activity/sleep"
     private let keychainKey = "com.fittrack.whoop.accessToken"
 
