@@ -18,14 +18,23 @@ struct MusclesView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                Section("7-day muscle status") {
-                    ForEach(MuscleGroup.allCases, id: \.self) { muscle in
-                        MuscleRowView(muscle: muscle, lastTrained: lastTrained[muscle])
+            ZStack {
+                Theme.Colors.bg.ignoresSafeArea()
+                ScrollView {
+                    VStack(spacing: 8) {
+                        ForEach(Array(MuscleGroup.allCases.enumerated()), id: \.element) { index, muscle in
+                            MuscleRowView(muscle: muscle, lastTrained: lastTrained[muscle])
+                                .padding(.horizontal, Theme.Layout.screenPadding)
+                                .appearAnimation(delay: Double(index) * 0.04)
+                        }
+                        Spacer(minLength: 20)
                     }
+                    .padding(.top, 8)
                 }
             }
             .navigationTitle("Muscles")
+            .toolbarBackground(Theme.Colors.bg, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
         }
     }
 }
@@ -38,26 +47,57 @@ struct MuscleRowView: View {
         FatigueEngine.fatigueColor(lastTrained: lastTrained, today: Date())
     }
 
-    private var swiftUIColor: Color {
+    private var themeColor: Color {
         switch fatigueColor {
-        case .green: return .green
-        case .yellow: return .yellow
-        case .red: return .red
+        case .green:  return Color(hex: "00FF88")
+        case .yellow: return Color(hex: "FFB800")
+        case .red:    return Color(hex: "FF3B5C")
         }
     }
 
     private var subtitle: String {
         guard let date = lastTrained else { return "Never trained" }
         let days = Calendar.current.dateComponents([.day], from: date, to: Date()).day ?? 0
-        return days == 0 ? "Trained today" : "\(days) day\(days == 1 ? "" : "s") ago"
+        return days == 0 ? "Trained today" : "\(days)d ago"
+    }
+
+    @State private var barWidth: CGFloat = 0
+    private var barFraction: CGFloat {
+        guard let date = lastTrained else { return 0.0 }
+        let days = Calendar.current.dateComponents([.day], from: date, to: Date()).day ?? 0
+        return max(0, CGFloat(1.0 - Double(days) / 7.0))
     }
 
     var body: some View {
-        HStack {
-            Circle().fill(swiftUIColor).frame(width: 10, height: 10)
-            Text(muscle.rawValue.capitalized).font(.body)
-            Spacer()
-            Text(subtitle).font(.caption).foregroundStyle(.secondary)
+        NeonCard(borderColor: themeColor.opacity(0.2)) {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text(muscle.rawValue.capitalized)
+                        .font(Theme.Fonts.orbitron(13))
+                        .foregroundStyle(Theme.Colors.textPrimary)
+                    Spacer()
+                    Text(subtitle)
+                        .font(Theme.Fonts.mono(11))
+                        .foregroundStyle(themeColor)
+                }
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(Theme.Colors.borderSubtle)
+                            .frame(height: 4)
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(themeColor)
+                            .frame(width: geo.size.width * barWidth, height: 4)
+                            .neonGlow(themeColor, radius: 3)
+                    }
+                }
+                .frame(height: 4)
+                .onAppear {
+                    withAnimation(Theme.Anim.spring.delay(0.2)) {
+                        barWidth = barFraction
+                    }
+                }
+            }
         }
     }
 }
