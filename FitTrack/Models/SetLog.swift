@@ -8,7 +8,7 @@ final class SetLog {
     var setNumber: Int
     var targetReps: Int
     var repsCompleted: Int
-    var weight: Double       // kg
+    var weight: Double       // lbs
     var completed: Bool
 
     @Relationship(inverse: \TrainingSession.setLogs) var session: TrainingSession?

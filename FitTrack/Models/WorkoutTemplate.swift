@@ -25,6 +25,7 @@ final class TemplateExercise {
     var targetSets: Int
     var targetReps: Int
     var orderIndex: Int
+    var incrementLbs: Double
     var primaryMusclesRaw: [String]
     var secondaryMusclesRaw: [String]
 
@@ -40,12 +41,13 @@ final class TemplateExercise {
 
     @Relationship(inverse: \WorkoutTemplate.exercises) var workoutTemplate: WorkoutTemplate?
 
-    init(name: String, targetSets: Int, targetReps: Int, orderIndex: Int) {
+    init(name: String, targetSets: Int, targetReps: Int, orderIndex: Int, incrementLbs: Double = 5.0) {
         self.id = UUID()
         self.name = name
         self.targetSets = targetSets
         self.targetReps = targetReps
         self.orderIndex = orderIndex
+        self.incrementLbs = incrementLbs
         self.primaryMusclesRaw = []
         self.secondaryMusclesRaw = []
     }
