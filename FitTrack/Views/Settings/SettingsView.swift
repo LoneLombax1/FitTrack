@@ -1,13 +1,16 @@
 import SwiftUI
 import AuthenticationServices
+import SwiftData
 
 struct SettingsView: View {
     @EnvironmentObject private var whoopService: WhoopService
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var context
     @AppStorage("deloadThreshold") private var deloadThreshold: Int = 50
     @AppStorage("programDurationWeeks") private var programDurationWeeks: Int = 8
     @State private var windowContext = WindowContextProvider()
     @State private var whoopError: String?
+    @State private var showClearWeekConfirm = false
 
     var body: some View {
         NavigationStack {
@@ -61,6 +64,12 @@ struct SettingsView: View {
                                 .foregroundStyle(Theme.Colors.cyan)
                         }
                     } header: { SectionHeader(title: "Programs") }
+
+                    Section {
+                        Button("Clear This Week's Sessions", role: .destructive) {
+                            showClearWeekConfirm = true
+                        }
+                    } header: { SectionHeader(title: "Data") }
                 }
                 .scrollContentBackground(.hidden)
                 .listStyle(.insetGrouped)
@@ -74,6 +83,24 @@ struct SettingsView: View {
                         .foregroundStyle(Theme.Colors.cyan)
                 }
             }
+            .confirmationDialog("Delete all sessions from this week?", isPresented: $showClearWeekConfirm, titleVisibility: .visible) {
+                Button("Clear This Week", role: .destructive) { clearThisWeek() }
+                Button("Cancel", role: .cancel) {}
+            }
+        }
+    }
+
+    private func clearThisWeek() {
+        let cal = Calendar.current
+        let weekOfYear = cal.component(.weekOfYear, from: Date())
+        let year = cal.component(.yearForWeekOfYear, from: Date())
+        guard let weekStart = cal.date(from: DateComponents(weekOfYear: weekOfYear, yearForWeekOfYear: year)),
+              let weekEnd = cal.date(byAdding: .weekOfYear, value: 1, to: weekStart) else { return }
+        let descriptor = FetchDescriptor<TrainingSession>(
+            predicate: #Predicate { $0.date >= weekStart && $0.date < weekEnd }
+        )
+        if let sessions = try? context.fetch(descriptor) {
+            sessions.forEach { context.delete($0) }
         }
     }
 }
