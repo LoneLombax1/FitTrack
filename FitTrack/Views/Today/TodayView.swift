@@ -215,7 +215,7 @@ struct TodayView: View {
                 StatTile(value: "\(cycle.recoveryScore)%", label: "RECOVERY", color: Theme.Colors.recovery(cycle.recoveryScore))
             }
             StatTile(
-                value: "\(recentSessions.filter { Calendar.current.isDate($0.date, equalTo: Date(), toGranularity: .weekOfYear) }.count)",
+                value: "\(recentSessions.filter { Calendar.current.isDate($0.date, equalTo: Date(), toGranularity: .weekOfYear) && ($0.type != .gym || $0.durationMinutes != nil) }.count)",
                 label: "THIS WEEK",
                 color: Theme.Colors.purple
             )

@@ -99,6 +99,7 @@ struct ActiveSessionView: View {
     }
 
     private func finishSession() {
+        session.durationMinutes = max(1, Int(Date().timeIntervalSince(session.date) / 60))
         var newPRs = 0
         for exercise in template.sortedExercises {
             let snapshots = logsFor(exercise).map { $0.toSnapshot() }
