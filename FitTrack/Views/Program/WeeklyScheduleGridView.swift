@@ -17,6 +17,7 @@ struct WeeklyScheduleGridView: View {
                         HStack {
                             Text(dayNames[day - 1])
                                 .frame(width: 40, alignment: .leading)
+                                .foregroundStyle(Theme.Colors.textPrimary)
                             Spacer()
                             SlotTypeBadge(type: slot.type)
                         }
@@ -25,15 +26,20 @@ struct WeeklyScheduleGridView: View {
                     HStack {
                         Text(dayNames[day - 1])
                             .frame(width: 40, alignment: .leading)
+                            .foregroundStyle(Theme.Colors.textPrimary)
                         Spacer()
                         Text("Not set")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .font(Theme.Fonts.rajdhani(12))
+                            .foregroundStyle(Theme.Colors.textMuted)
                     }
                 }
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(Theme.Colors.bg.ignoresSafeArea())
         .navigationTitle("Weekly Schedule")
+        .toolbarBackground(Theme.Colors.bg, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Done") { dismiss() }
@@ -57,27 +63,37 @@ private struct SlotTypeBadge: View {
 
     private var color: Color {
         switch type {
-        case .gym: return .blue
-        case .sport: return .orange
-        case .competition: return .purple
-        case .rest: return .gray
+        case .gym:         return Theme.Colors.purple
+        case .sport:       return Theme.Colors.cyan
+        case .competition: return Color(hex: "FF6B00")
+        case .rest:        return Theme.Colors.textMuted
         }
     }
 
     var body: some View {
-        Text(type.rawValue.capitalized)
-            .font(.caption)
-            .fontWeight(.semibold)
-            .foregroundStyle(.white)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 3)
-            .background(color, in: Capsule())
+        NeonBadge(text: type.rawValue.uppercased(), color: color)
     }
 }
 
 struct ScheduleSlotEditorView: View {
     @Bindable var slot: WeeklyScheduleSlot
     let templates: [WorkoutTemplate]
+    @Query private var sessions: [TrainingSession]
+
+    private var previousActivities: [String] {
+        Array(Set(sessions.compactMap { $0.type == .sport ? $0.activityName : nil })).sorted()
+    }
+
+    private var previousCompetitions: [String] {
+        Array(Set(sessions.compactMap { $0.type == .competition ? $0.activityName : nil })).sorted()
+    }
+
+    private var activityNameBinding: Binding<String> {
+        Binding(
+            get: { slot.activityName ?? "" },
+            set: { slot.activityName = $0.isEmpty ? nil : $0 }
+        )
+    }
 
     var body: some View {
         Form {
@@ -102,11 +118,21 @@ struct ScheduleSlotEditorView: View {
             }
 
             if slot.type == .sport || slot.type == .competition {
+                let previous = slot.type == .sport ? previousActivities : previousCompetitions
                 Section("Activity Details") {
-                    TextField("Activity name", text: Binding(
-                        get: { slot.activityName ?? "" },
-                        set: { slot.activityName = $0.isEmpty ? nil : $0 }
-                    ))
+                    HStack {
+                        TextField("Activity name", text: activityNameBinding)
+                        if !previous.isEmpty {
+                            Menu {
+                                ForEach(previous, id: \.self) { name in
+                                    Button(name) { slot.activityName = name }
+                                }
+                            } label: {
+                                Image(systemName: "clock.arrow.circlepath")
+                                    .foregroundStyle(.blue)
+                            }
+                        }
+                    }
 
                     Picker("Intensity", selection: Binding(
                         get: { slot.intensityRaw },
@@ -137,7 +163,11 @@ struct ScheduleSlotEditorView: View {
                 }
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(Theme.Colors.bg.ignoresSafeArea())
         .navigationTitle("Edit Day")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(Theme.Colors.bg, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
     }
 }
