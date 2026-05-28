@@ -26,6 +26,7 @@ final class WhoopService: NSObject, ObservableObject {
     private let authURL     = "https://api.prod.whoop.com/oauth/oauth2/auth"
     private let tokenURL    = "https://api.prod.whoop.com/oauth/oauth2/token"
     private let cycleURL    = "https://api.prod.whoop.com/developer/v1/cycle"
+    private let recoveryURL = "https://api.prod.whoop.com/developer/v1/recovery"
     private let workoutURL  = "https://api.prod.whoop.com/developer/v1/activity/workout"
     private let sleepURL    = "https://api.prod.whoop.com/developer/v1/activity/sleep"
     private let keychainKey = "com.fittrack.whoop.accessToken"
@@ -105,14 +106,25 @@ final class WhoopService: NSObject, ObservableObject {
 
     func fetchTodayCycle() async throws -> WhoopCycleResult {
         guard let token = loadToken() else { throw WhoopError.notAuthenticated }
-        var request = URLRequest(url: URL(string: cycleURL)!)
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        let (data, response) = try await URLSession.shared.data(for: request)
-        if let http = response as? HTTPURLResponse {
-            if http.statusCode == 401 { throw WhoopError.notAuthenticated }
-            if !(200...299).contains(http.statusCode) { throw WhoopError.httpError(http.statusCode) }
+
+        func get(_ urlString: String) async throws -> Data {
+            var req = URLRequest(url: URL(string: urlString)!)
+            req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            let (data, resp) = try await URLSession.shared.data(for: req)
+            if let http = resp as? HTTPURLResponse {
+                if http.statusCode == 401 { throw WhoopError.notAuthenticated }
+                if !(200...299).contains(http.statusCode) { throw WhoopError.httpError(http.statusCode) }
+            }
+            return data
         }
-        let result = try WhoopService.parseCycleResponse(data: data)
+
+        async let cycleData    = get(cycleURL)
+        async let recoveryData = get(recoveryURL)
+
+        let strain   = try? WhoopService.parseLatestStrain(data: try await cycleData)
+        let recovery = try? WhoopService.parseLatestRecovery(data: try await recoveryData)
+
+        let result = WhoopCycleResult(recoveryScore: recovery, strainScore: strain)
         lastCycle = result
         return result
     }
@@ -162,19 +174,18 @@ final class WhoopService: NSObject, ObservableObject {
 
     // MARK: - Parsing (static — unit testable without an instance)
 
-    nonisolated static func parseCycleResponse(data: Data) throws -> WhoopCycleResult {
-        struct Response: Decodable {
-            struct Score: Decodable {
-                let recovery_score: Int?
-                let strain: Double?
-            }
-            let score: Score?
-        }
-        let decoded = try JSONDecoder().decode(Response.self, from: data)
-        return WhoopCycleResult(
-            recoveryScore: decoded.score?.recovery_score,
-            strainScore: decoded.score?.strain
-        )
+    nonisolated static func parseLatestStrain(data: Data) throws -> Double? {
+        struct Score: Decodable { let strain: Double? }
+        struct Record: Decodable { let score: Score? }
+        struct Response: Decodable { let records: [Record] }
+        return try JSONDecoder().decode(Response.self, from: data).records.first?.score?.strain
+    }
+
+    nonisolated static func parseLatestRecovery(data: Data) throws -> Int? {
+        struct Score: Decodable { let recovery_score: Int? }
+        struct Record: Decodable { let score: Score? }
+        struct Response: Decodable { let records: [Record] }
+        return try JSONDecoder().decode(Response.self, from: data).records.first?.score?.recovery_score
     }
 
     nonisolated static func parseLatestWorkout(data: Data) throws -> WhoopWorkoutResult? {

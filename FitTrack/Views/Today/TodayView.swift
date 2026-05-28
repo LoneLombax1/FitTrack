@@ -256,11 +256,14 @@ struct TodayView: View {
         guard todayCycle?.isStale != false else { return }
         async let cycleResult = whoopService.fetchTodayCycle()
         async let sleepResult = whoopService.fetchTodaySleep()
-        guard let result = try? await cycleResult,
-              let score = result.recoveryScore,
-              let strain = result.strainScore else { return }
+        guard let result = try? await cycleResult else { return }
         let sleep = try? await sleepResult
-        let cache = WhoopCycleCache(date: Date(), recoveryScore: score, strainScore: strain, sleepScore: sleep)
+        let cache = WhoopCycleCache(
+            date: Date(),
+            recoveryScore: result.recoveryScore ?? 0,
+            strainScore: result.strainScore ?? 0,
+            sleepScore: sleep
+        )
         context.insert(cache)
     }
 }
