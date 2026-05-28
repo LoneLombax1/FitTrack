@@ -50,6 +50,10 @@
 		79AE219512BA4E97A55AC7DF /* SectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 627BFE8DB9DC451892DC68F5 /* SectionHeader.swift */; };
 		2FEBD1F4F0EE4828BB938D38 /* NeonBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B474A018993C47AE9E11BF84 /* NeonBadge.swift */; };
 		4EC66784817F411CB79C5679 /* CyberDivider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B34F32B4EBB249FCBABCAFDC /* CyberDivider.swift */; };
+		679FCBBBA94C43809AB95E10 /* Orbitron-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 080900E864AC44259920A0E8 /* Orbitron-Bold.ttf */; };
+		D1E7D0EDEC4C4E57B6290314 /* Rajdhani-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4BD3B2BF26F44A0E9A19F67A /* Rajdhani-SemiBold.ttf */; };
+		F2C51EF3FA9F4E7AA1F0D274 /* JetBrainsMono-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 978F3AD2AA314FF083241E02 /* JetBrainsMono-Regular.ttf */; };
+		4F0415B9A8B947C88A13F89E /* JetBrainsMono-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 830AEE88B2E2466981E97F22 /* JetBrainsMono-Bold.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -111,6 +115,10 @@
 		627BFE8DB9DC451892DC68F5 /* SectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionHeader.swift; sourceTree = "<group>"; };
 		B474A018993C47AE9E11BF84 /* NeonBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NeonBadge.swift; sourceTree = "<group>"; };
 		B34F32B4EBB249FCBABCAFDC /* CyberDivider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CyberDivider.swift; sourceTree = "<group>"; };
+		080900E864AC44259920A0E8 /* Orbitron-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Orbitron-Bold.ttf"; sourceTree = "<group>"; };
+		4BD3B2BF26F44A0E9A19F67A /* Rajdhani-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Rajdhani-SemiBold.ttf"; sourceTree = "<group>"; };
+		978F3AD2AA314FF083241E02 /* JetBrainsMono-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "JetBrainsMono-Regular.ttf"; sourceTree = "<group>"; };
+		830AEE88B2E2466981E97F22 /* JetBrainsMono-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "JetBrainsMono-Bold.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -194,11 +202,31 @@
 				125578C49FC616DBEE8F83AF /* Info.plist */,
 				387104CC675EEA5789191431 /* Engines */,
 				F797FA91D40F8592BAA6597C /* Models */,
+				CA17C76151494E73AD6F747E /* Resources */,
 				E2A569C5CF320244A94D2D4B /* Services */,
 				8F4AD35E69D641C3A2198D16 /* Theme */,
 				9AE3D13751DE40A717203B67 /* Views */,
 			);
 			path = FitTrack;
+			sourceTree = "<group>";
+		};
+		CA17C76151494E73AD6F747E /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				21F8576557DB4B19B600A04C /* Fonts */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		21F8576557DB4B19B600A04C /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				080900E864AC44259920A0E8 /* Orbitron-Bold.ttf */,
+				4BD3B2BF26F44A0E9A19F67A /* Rajdhani-SemiBold.ttf */,
+				978F3AD2AA314FF083241E02 /* JetBrainsMono-Regular.ttf */,
+				830AEE88B2E2466981E97F22 /* JetBrainsMono-Bold.ttf */,
+			);
+			path = Fonts;
 			sourceTree = "<group>";
 		};
 		AEA38702B705DAEA72C53EAD /* Products */ = {
@@ -321,6 +349,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D3B4A6B7657E5CB7FD38F812 /* Build configuration list for PBXNativeTarget "FitTrack" */;
 			buildPhases = (
+				8F7C438B00B1459D8266425C /* Resources */,
 				522D69FECDF3C6955ABB05AD /* Sources */,
 			);
 			buildRules = (
@@ -362,6 +391,20 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8F7C438B00B1459D8266425C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				679FCBBBA94C43809AB95E10 /* Orbitron-Bold.ttf in Resources */,
+				D1E7D0EDEC4C4E57B6290314 /* Rajdhani-SemiBold.ttf in Resources */,
+				F2C51EF3FA9F4E7AA1F0D274 /* JetBrainsMono-Regular.ttf in Resources */,
+				4F0415B9A8B947C88A13F89E /* JetBrainsMono-Bold.ttf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		1F4EE657FFC5032DF385BC33 /* Sources */ = {

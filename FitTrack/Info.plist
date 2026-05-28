@@ -39,5 +39,12 @@
 		<key>UIColorName</key>
 		<string></string>
 	</dict>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Orbitron-Bold.ttf</string>
+		<string>Rajdhani-SemiBold.ttf</string>
+		<string>JetBrainsMono-Regular.ttf</string>
+		<string>JetBrainsMono-Bold.ttf</string>
+	</array>
 </dict>
 </plist>
