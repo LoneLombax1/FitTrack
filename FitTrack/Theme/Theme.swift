@@ -33,7 +33,7 @@ enum Theme {
 
     // MARK: - Typography
     enum Fonts {
-        static func orbitron(_ size: CGFloat, weight: Font.Weight = .bold) -> Font {
+        static func orbitron(_ size: CGFloat) -> Font {
             Font.custom("Orbitron-Bold", size: size)
         }
 
@@ -109,6 +109,7 @@ struct AppearAnimationModifier: ViewModifier {
                     appeared = true
                 }
             }
+            .onDisappear { appeared = false }
     }
 }
 
