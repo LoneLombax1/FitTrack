@@ -21,6 +21,7 @@
 		2FB461492FC863E600412602 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2FB461482FC863E600412602 /* Assets.xcassets */; };
 		2FEBD1F4F0EE4828BB938D38 /* NeonBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B474A018993C47AE9E11BF84 /* NeonBadge.swift */; };
 		37842A5AE8CEC9141FC46022 /* RecoveryBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90ADF2B36AB0A12D88F66911 /* RecoveryBadgeView.swift */; };
+		D6965611DBD0463DA8DD2532 /* WhoopMetricsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F2D90AC31184A329727C6EF /* WhoopMetricsView.swift */; };
 		395B02C1167BD0F1603EF22C /* MusclesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1395A309E7B41CFAC273C3FC /* MusclesView.swift */; };
 		40E3594A965B5C4F07CD846E /* ActiveSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF9BAB5B2B17ABE79891F807 /* ActiveSessionView.swift */; };
 		44375FE3BA5EA314A16669C5 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C193CFBF0E935E1AE57B268 /* Enums.swift */; };
@@ -105,6 +106,7 @@
 		830AEE88B2E2466981E97F22 /* JetBrainsMono-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "JetBrainsMono-Bold.ttf"; sourceTree = "<group>"; };
 		88EE90CB3F4EDABE08B1992C /* SetLogRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetLogRowView.swift; sourceTree = "<group>"; };
 		90ADF2B36AB0A12D88F66911 /* RecoveryBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryBadgeView.swift; sourceTree = "<group>"; };
+		5F2D90AC31184A329727C6EF /* WhoopMetricsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhoopMetricsView.swift; sourceTree = "<group>"; };
 		96CD5D54C31FEE1647D88E05 /* ProgramView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgramView.swift; sourceTree = "<group>"; };
 		978F3AD2AA314FF083241E02 /* JetBrainsMono-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "JetBrainsMono-Regular.ttf"; sourceTree = "<group>"; };
 		A1673D99480469EF0BEE096D /* ProgressionEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressionEngineTests.swift; sourceTree = "<group>"; };
@@ -130,6 +132,7 @@
 			isa = PBXGroup;
 			children = (
 				90ADF2B36AB0A12D88F66911 /* RecoveryBadgeView.swift */,
+				5F2D90AC31184A329727C6EF /* WhoopMetricsView.swift */,
 				DC2F9030C5A7CBA26A5E186C /* TodayView.swift */,
 			);
 			path = Today;
@@ -449,6 +452,7 @@
 				0FAF501E57E8ACCCBBF42EFF /* ProgressView_.swift in Sources */,
 				1795430E9A3CBAA3C35AF1B7 /* ProgressionEngine.swift in Sources */,
 				37842A5AE8CEC9141FC46022 /* RecoveryBadgeView.swift in Sources */,
+				D6965611DBD0463DA8DD2532 /* WhoopMetricsView.swift in Sources */,
 				FBE546EF14CC6070427BCB3E /* SetLog.swift in Sources */,
 				915DE3842F34703EC29F6251 /* SetLogRowView.swift in Sources */,
 				510DB56356DAE89BE9329D6B /* SettingsView.swift in Sources */,

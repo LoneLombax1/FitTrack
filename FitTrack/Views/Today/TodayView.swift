@@ -60,9 +60,9 @@ struct TodayView: View {
                         .padding(.top, 8)
                         .appearAnimation(delay: 0)
 
-                        // Recovery card
+                        // Whoop metrics card
                         if let cycle = todayCycle {
-                            RecoveryBadgeView(score: cycle.recoveryScore)
+                            WhoopMetricsView(cycle: cycle)
                                 .padding(.horizontal, Theme.Layout.screenPadding)
                                 .appearAnimation(delay: 0.05)
                         }
@@ -254,10 +254,13 @@ struct TodayView: View {
     @MainActor private func refreshWhoop() async {
         guard whoopService.isConnected else { return }
         guard todayCycle?.isStale != false else { return }
-        guard let result = try? await whoopService.fetchTodayCycle() else { return }
-        if let score = result.recoveryScore, let strain = result.strainScore {
-            let cache = WhoopCycleCache(date: Date(), recoveryScore: score, strainScore: strain)
-            context.insert(cache)
-        }
+        async let cycleResult = whoopService.fetchTodayCycle()
+        async let sleepResult = whoopService.fetchTodaySleep()
+        guard let result = try? await cycleResult,
+              let score = result.recoveryScore,
+              let strain = result.strainScore else { return }
+        let sleep = try? await sleepResult
+        let cache = WhoopCycleCache(date: Date(), recoveryScore: score, strainScore: strain, sleepScore: sleep)
+        context.insert(cache)
     }
 }

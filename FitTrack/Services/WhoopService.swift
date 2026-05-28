@@ -27,6 +27,7 @@ final class WhoopService: NSObject, ObservableObject {
     private let tokenURL    = "https://api.prod.whoop.com/oauth/oauth2/token"
     private let cycleURL    = "https://api.prod.whoop.com/developer/v1/cycle"
     private let workoutURL  = "https://api.prod.whoop.com/developer/v1/activity/workout"
+    private let sleepURL    = "https://api.prod.whoop.com/developer/v1/activity/sleep"
     private let keychainKey = "com.fittrack.whoop.accessToken"
 
     @Published var isConnected: Bool = false
@@ -51,7 +52,7 @@ final class WhoopService: NSObject, ObservableObject {
             .init(name: "response_type",         value: "code"),
             .init(name: "client_id",             value: clientId),
             .init(name: "redirect_uri",          value: redirectURI),
-            .init(name: "scope",                 value: "read:recovery read:cycles read:workout"),
+            .init(name: "scope",                 value: "read:recovery read:cycles read:workout read:sleep"),
             .init(name: "state",                 value: state),
             .init(name: "code_challenge",        value: codeChallenge),
             .init(name: "code_challenge_method", value: "S256"),
@@ -137,6 +138,28 @@ final class WhoopService: NSObject, ObservableObject {
         return try WhoopService.parseLatestWorkout(data: data)
     }
 
+    func fetchTodaySleep() async throws -> Int? {
+        guard let token = loadToken() else { throw WhoopError.notAuthenticated }
+        let today = Calendar.current.startOfDay(for: Date())
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: today)!
+        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today)!
+        let fmt = ISO8601DateFormatter()
+        var components = URLComponents(string: sleepURL)!
+        components.queryItems = [
+            .init(name: "start_time", value: fmt.string(from: yesterday)),
+            .init(name: "end_time",   value: fmt.string(from: tomorrow)),
+            .init(name: "limit",      value: "5"),
+        ]
+        var request = URLRequest(url: components.url!)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        let (data, response) = try await URLSession.shared.data(for: request)
+        if let http = response as? HTTPURLResponse {
+            if http.statusCode == 401 { throw WhoopError.notAuthenticated }
+            if !(200...299).contains(http.statusCode) { throw WhoopError.httpError(http.statusCode) }
+        }
+        return try WhoopService.parseLatestSleep(data: data)
+    }
+
     // MARK: - Parsing (static — unit testable without an instance)
 
     nonisolated static func parseCycleResponse(data: Data) throws -> WhoopCycleResult {
@@ -172,6 +195,25 @@ final class WhoopService: NSObject, ObservableObject {
             }
             .sorted { $0.start > $1.start }
             .first
+    }
+
+    nonisolated static func parseLatestSleep(data: Data) throws -> Int? {
+        struct Record: Decodable {
+            struct Score: Decodable { let sleep_performance_percentage: Int? }
+            let score: Score?
+            let end: String
+        }
+        struct Response: Decodable { let records: [Record] }
+        let decoded = try JSONDecoder().decode(Response.self, from: data)
+        let fmt = ISO8601DateFormatter()
+        fmt.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return decoded.records
+            .compactMap { r -> (date: Date, score: Int)? in
+                guard let end = fmt.date(from: r.end), let score = r.score?.sleep_performance_percentage else { return nil }
+                return (date: end, score: score)
+            }
+            .sorted { $0.date > $1.date }
+            .first?.score
     }
 
     // MARK: - PKCE Helpers

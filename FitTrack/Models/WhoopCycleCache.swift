@@ -7,13 +7,15 @@ final class WhoopCycleCache {
     @Attribute(.unique) var date: Date           // day key — store start of day
     var recoveryScore: Int   // 0–100
     var strainScore: Double  // 0.0–21.0
+    var sleepScore: Int?     // 0–100, nil if not yet fetched
     var fetchedAt: Date
 
-    init(date: Date, recoveryScore: Int, strainScore: Double) {
+    init(date: Date, recoveryScore: Int, strainScore: Double, sleepScore: Int? = nil) {
         self.id = UUID()
         self.date = Calendar.current.startOfDay(for: date)
         self.recoveryScore = recoveryScore
         self.strainScore = strainScore
+        self.sleepScore = sleepScore
         self.fetchedAt = Date()
     }
 
