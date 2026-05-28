@@ -51,7 +51,7 @@ final class WhoopService: NSObject, ObservableObject {
             .init(name: "response_type",         value: "code"),
             .init(name: "client_id",             value: clientId),
             .init(name: "redirect_uri",          value: redirectURI),
-            .init(name: "scope",                 value: "read:recovery read:cycles read:body_measurement"),
+            .init(name: "scope",                 value: "read:recovery read:cycles read:workout"),
             .init(name: "state",                 value: state),
             .init(name: "code_challenge",        value: codeChallenge),
             .init(name: "code_challenge_method", value: "S256"),
@@ -75,13 +75,18 @@ final class WhoopService: NSObject, ObservableObject {
         }
         authSession = nil
 
-        if let returnedState = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)?
-            .queryItems?.first(where: { $0.name == "state" })?.value {
+        let callbackComponents = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)
+
+        if let errorDesc = callbackComponents?.queryItems?.first(where: { $0.name == "error_description" })?.value {
+            throw WhoopError.oauthError(errorDesc.replacingOccurrences(of: "+", with: " "))
+        }
+
+        let returnedState = callbackComponents?.queryItems?.first(where: { $0.name == "state" })?.value
+        if let returnedState, !returnedState.isEmpty {
             guard returnedState.lowercased() == state.lowercased() else { throw WhoopError.invalidState }
         }
 
-        guard let code = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)?
-            .queryItems?.first(where: { $0.name == "code" })?.value
+        guard let code = callbackComponents?.queryItems?.first(where: { $0.name == "code" })?.value
         else { throw WhoopError.noAuthCode }
 
         let token = try await exchangeCode(code, codeVerifier: codeVerifier)
@@ -260,13 +265,15 @@ enum WhoopError: LocalizedError {
     case noCallbackURL
     case noAuthCode
     case invalidState
+    case oauthError(String)
     case httpError(Int)
 
     var errorDescription: String? {
         switch self {
-        case .notAuthenticated:    return "Not connected to Whoop. Connect in Settings."
-        case .noCallbackURL:       return "Whoop login did not return a callback URL."
-        case .noAuthCode:          return "Whoop login did not return an authorization code."
+        case .notAuthenticated:       return "Not connected to Whoop. Connect in Settings."
+        case .noCallbackURL:          return "Whoop login did not return a callback URL."
+        case .noAuthCode:             return "Whoop login did not return an authorization code."
+        case .oauthError(let msg):    return "Whoop login failed: \(msg)"
         case .invalidState:        return "Whoop login failed: state parameter mismatch (possible CSRF attack)."
         case .httpError(let code): return "Whoop server returned error \(code)."
         }
