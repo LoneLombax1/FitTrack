@@ -12,19 +12,37 @@ struct ProgressView_: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                weightSection
-                goalsSection
-                Section("Photos") {
-                    NavigationLink("View progress photos") {
-                        ProgressPhotoGridView()
+            ZStack {
+                Theme.Colors.bg.ignoresSafeArea()
+                ScrollView {
+                    VStack(spacing: Theme.Layout.cardGap) {
+                        weightCard
+                            .padding(.horizontal, Theme.Layout.screenPadding)
+                            .appearAnimation(delay: 0)
+
+                        goalsCard
+                            .padding(.horizontal, Theme.Layout.screenPadding)
+                            .appearAnimation(delay: 0.05)
+
+                        photosCard
+                            .padding(.horizontal, Theme.Layout.screenPadding)
+                            .appearAnimation(delay: 0.1)
+
+                        Spacer(minLength: 20)
                     }
+                    .padding(.top, 8)
                 }
             }
             .navigationTitle("Progress")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(Theme.Colors.bg, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Button("Log Weight", systemImage: "scalemass") { showWeighIn = true }
+                    Button { showWeighIn = true } label: {
+                        Image(systemName: "scalemass.fill")
+                            .foregroundStyle(Theme.Colors.cyan)
+                    }
                 }
             }
             .sheet(isPresented: $showWeighIn) { WeighInEntryView() }
@@ -32,58 +50,133 @@ struct ProgressView_: View {
         }
     }
 
-    @ViewBuilder private var weightSection: some View {
-        if weighIns.count > 1 {
-            Section("Weight") {
-                Chart(weighIns) { entry in
-                    LineMark(x: .value("Date", entry.date), y: .value("kg", entry.bodyWeightKg))
-                    PointMark(x: .value("Date", entry.date), y: .value("kg", entry.bodyWeightKg))
-                }
-                .frame(height: 140)
-                .chartYAxisLabel("kg")
-                if let latest = weighIns.last {
-                    Text("Latest: \(latest.bodyWeightKg, format: .number)kg")
-                        .font(.caption).foregroundStyle(.secondary)
-                    if let bf = latest.bodyFatPercent {
-                        Text("Body fat: \(bf, format: .number)%")
-                            .font(.caption).foregroundStyle(.secondary)
+    @ViewBuilder private var weightCard: some View {
+        NeonCard(borderColor: Theme.Colors.borderCyan) {
+            VStack(alignment: .leading, spacing: 12) {
+                SectionHeader(title: "Weight Trend")
+                if weighIns.count > 1 {
+                    Chart(weighIns) { entry in
+                        LineMark(
+                            x: .value("Date", entry.date),
+                            y: .value("lbs", entry.bodyWeightLbs)
+                        )
+                        .foregroundStyle(Theme.Colors.cyan)
+                        .interpolationMethod(.catmullRom)
+                        AreaMark(
+                            x: .value("Date", entry.date),
+                            y: .value("lbs", entry.bodyWeightLbs)
+                        )
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [Theme.Colors.cyan.opacity(0.15), .clear],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                        .interpolationMethod(.catmullRom)
+                        PointMark(
+                            x: .value("Date", entry.date),
+                            y: .value("lbs", entry.bodyWeightLbs)
+                        )
+                        .foregroundStyle(Theme.Colors.purple)
+                        .symbolSize(30)
                     }
-                }
-            }
-            let bodyFatData = weighIns.compactMap { weighIn -> (date: Date, pct: Double)? in
-                guard let bf = weighIn.bodyFatPercent else { return nil }
-                return (date: weighIn.date, pct: bf)
-            }
-            if bodyFatData.count > 1 {
-                Section("Body Fat %") {
-                    Chart(bodyFatData, id: \.date) { point in
-                        LineMark(x: .value("Date", point.date), y: .value("%", point.pct))
-                        PointMark(x: .value("Date", point.date), y: .value("%", point.pct))
+                    .frame(height: 130)
+                    .chartXAxis {
+                        AxisMarks(values: .automatic(desiredCount: 4)) {
+                            AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
+                                .foregroundStyle(Theme.Colors.borderSubtle)
+                            AxisValueLabel()
+                                .foregroundStyle(Theme.Colors.textMuted)
+                                .font(Theme.Fonts.mono(9))
+                        }
                     }
-                    .frame(height: 100)
-                    .chartYAxisLabel("%")
+                    .chartYAxis {
+                        AxisMarks(values: .automatic(desiredCount: 4)) {
+                            AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
+                                .foregroundStyle(Theme.Colors.borderSubtle)
+                            AxisValueLabel()
+                                .foregroundStyle(Theme.Colors.textMuted)
+                                .font(Theme.Fonts.mono(9))
+                        }
+                    }
+                    .chartBackground { _ in Theme.Colors.surface }
+
+                    if let latest = weighIns.last {
+                        HStack {
+                            Text("\(latest.bodyWeightLbs, format: .number) lbs")
+                                .font(Theme.Fonts.mono(20, bold: true))
+                                .foregroundStyle(Theme.Colors.cyan)
+                            if let bf = latest.bodyFatPercent {
+                                Spacer()
+                                Text("\(bf, format: .number)% BF")
+                                    .font(Theme.Fonts.mono(14))
+                                    .foregroundStyle(Theme.Colors.textSecondary)
+                            }
+                        }
+                    }
+                } else {
+                    Text("No weigh-ins yet. Tap the scale icon to log your first.")
+                        .font(.system(size: 13))
+                        .foregroundStyle(Theme.Colors.textSecondary)
+                        .frame(height: 60)
                 }
-            }
-        } else {
-            Section("Weight") {
-                Text("No weigh-ins yet").foregroundStyle(.secondary)
             }
         }
     }
 
-    @ViewBuilder private var goalsSection: some View {
-        Section("Goals") {
-            ForEach(goals.filter { !$0.isAchieved }) { goal in
-                GoalRowView(goal: goal, sessions: sessions, weighIns: weighIns)
-            }
-            if !goals.filter({ $0.isAchieved }).isEmpty {
-                DisclosureGroup("Achieved") {
-                    ForEach(goals.filter { $0.isAchieved }) { goal in
-                        GoalRowView(goal: goal, sessions: sessions, weighIns: weighIns)
+    @ViewBuilder private var goalsCard: some View {
+        NeonCard(borderColor: Theme.Colors.borderPurple) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    SectionHeader(title: "Goals", color: Theme.Colors.purple)
+                    Spacer()
+                    Button { showGoalEditor = true } label: {
+                        Image(systemName: "plus")
+                            .foregroundStyle(Theme.Colors.purple)
+                            .font(.system(size: 16))
                     }
                 }
+                let active = goals.filter { !$0.isAchieved }
+                if active.isEmpty {
+                    Text("No goals set yet.")
+                        .font(.system(size: 13))
+                        .foregroundStyle(Theme.Colors.textMuted)
+                } else {
+                    ForEach(active) { goal in
+                        GoalRowView(goal: goal, sessions: sessions, weighIns: weighIns)
+                        if goal.id != active.last?.id { CyberDivider() }
+                    }
+                }
+                if !goals.filter({ $0.isAchieved }).isEmpty {
+                    CyberDivider()
+                    DisclosureGroup {
+                        ForEach(goals.filter { $0.isAchieved }) { goal in
+                            GoalRowView(goal: goal, sessions: sessions, weighIns: weighIns)
+                                .opacity(0.6)
+                        }
+                    } label: {
+                        Text("Achieved")
+                            .font(Theme.Fonts.rajdhani(12))
+                            .foregroundStyle(Theme.Colors.textMuted)
+                    }
+                    .tint(Theme.Colors.textMuted)
+                }
             }
-            Button("Add Goal", systemImage: "plus") { showGoalEditor = true }
+        }
+    }
+
+    @ViewBuilder private var photosCard: some View {
+        NeonCard(borderColor: Theme.Colors.borderSubtle) {
+            NavigationLink(destination: ProgressPhotoGridView()) {
+                HStack {
+                    SectionHeader(title: "Progress Photos")
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12))
+                        .foregroundStyle(Theme.Colors.textMuted)
+                }
+            }
         }
     }
 }
@@ -101,7 +194,7 @@ struct GoalRowView: View {
             return allLogs.map(\.weight).max()
         case .bodyComposition:
             switch goal.linkedMetric {
-            case .bodyWeight: return weighIns.last?.bodyWeightKg
+            case .bodyWeight: return weighIns.last?.bodyWeightLbs
             case .bodyFatPercent: return weighIns.compactMap(\.bodyFatPercent).last
             case nil: return nil
             }
@@ -109,32 +202,54 @@ struct GoalRowView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(goal.title).font(.headline)
+                Text(goal.title)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(Theme.Colors.textPrimary)
                 Spacer()
                 if goal.isAchieved {
-                    Image(systemName: "checkmark.seal.fill").foregroundStyle(.green)
+                    Image(systemName: "checkmark.seal.fill")
+                        .foregroundStyle(Theme.Colors.cyan)
+                        .neonGlow(Theme.Colors.cyan, radius: 4)
                 }
             }
             if let current = currentValue {
                 let progress = min(current / goal.targetValue, 1.0)
-                ProgressView(value: progress)
-                    .tint(progress >= 1.0 ? .green : .blue)
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(Theme.Colors.borderSubtle)
+                            .frame(height: 6)
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(progress >= 1.0 ? Theme.Colors.cyan : Theme.Colors.purple)
+                            .frame(width: geo.size.width * progress, height: 6)
+                            .neonGlow(progress >= 1.0 ? Theme.Colors.cyan : Theme.Colors.purple, radius: 4)
+                            .animation(Theme.Anim.spring.delay(0.2), value: progress)
+                    }
+                }
+                .frame(height: 6)
                 HStack {
-                    Text("Current: \(current, format: .number)").font(.caption).foregroundStyle(.secondary)
+                    Text("\(current, format: .number)")
+                        .font(Theme.Fonts.mono(11, bold: true))
+                        .foregroundStyle(Theme.Colors.textSecondary)
                     Spacer()
-                    Text("Target: \(goal.targetValue, format: .number)").font(.caption).foregroundStyle(.secondary)
+                    Text("→ \(goal.targetValue, format: .number)")
+                        .font(Theme.Fonts.mono(11))
+                        .foregroundStyle(Theme.Colors.textMuted)
+                    if let date = goal.targetDate {
+                        Text("by \(date.formatted(date: .abbreviated, time: .omitted))")
+                            .font(.system(size: 10))
+                            .foregroundStyle(Theme.Colors.textMuted)
+                    }
                 }
             } else {
-                Text("No data yet").font(.caption).foregroundStyle(.secondary)
-            }
-            if let date = goal.targetDate {
-                Text("By \(date.formatted(date: .abbreviated, time: .omitted))")
-                    .font(.caption2).foregroundStyle(.secondary)
+                Text("No data yet")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Theme.Colors.textMuted)
             }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, 4)
         .onChange(of: currentValue) { _, newValue in
             if let value = newValue, value >= goal.targetValue, !goal.isAchieved {
                 goal.isAchieved = true
