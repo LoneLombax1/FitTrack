@@ -26,3 +26,6 @@ build/
 
 # Superpowers brainstorm artifacts
 .superpowers/
+
+# Credentials — never commit
+FitTrack/Config.swift

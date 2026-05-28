@@ -20,7 +20,8 @@ final class WhoopService: NSObject, ObservableObject {
 
     static let shared = WhoopService()
 
-    private let clientId    = "98becc67-fddb-4c3e-8a09-22562c081ba2"
+    private let clientId     = Config.whoopClientId
+    private let clientSecret = Config.whoopClientSecret
     private let redirectURI = "fittrack://whoop/callback"
     private let authURL     = "https://api.prod.whoop.com/oauth/oauth2/auth"
     private let tokenURL    = "https://api.prod.whoop.com/oauth/oauth2/token"
@@ -68,7 +69,7 @@ final class WhoopService: NSObject, ObservableObject {
                 cont.resume(returning: url)
             }
             session.presentationContextProvider = presentationContext
-            session.prefersEphemeralWebBrowserSession = false
+            session.prefersEphemeralWebBrowserSession = true
             self.authSession = session
             session.start()
         }
@@ -197,12 +198,14 @@ final class WhoopService: NSObject, ObservableObject {
         var formAllowed = CharacterSet.urlQueryAllowed
         formAllowed.remove(charactersIn: "+=/&")
         let encodedClientId     = clientId.addingPercentEncoding(withAllowedCharacters: formAllowed) ?? clientId
+        let encodedClientSecret = clientSecret.addingPercentEncoding(withAllowedCharacters: formAllowed) ?? clientSecret
         let encodedCode         = code.addingPercentEncoding(withAllowedCharacters: formAllowed) ?? code
         let encodedRedirectURI  = redirectURI.addingPercentEncoding(withAllowedCharacters: formAllowed) ?? redirectURI
         let encodedCodeVerifier = codeVerifier.addingPercentEncoding(withAllowedCharacters: formAllowed) ?? codeVerifier
         let body = [
             "grant_type=authorization_code",
             "client_id=\(encodedClientId)",
+            "client_secret=\(encodedClientSecret)",
             "code=\(encodedCode)",
             "redirect_uri=\(encodedRedirectURI)",
             "code_verifier=\(encodedCodeVerifier)",
