@@ -3,8 +3,10 @@ import SwiftData
 import Charts
 
 struct HistoryView: View {
+    @Environment(\.modelContext) private var context
     @Query(sort: \TrainingSession.date, order: .reverse) private var sessions: [TrainingSession]
     @State private var selectedExercise: String?
+    @State private var sessionToDelete: TrainingSession?
 
     private var gymSessions: [TrainingSession] { sessions.filter { $0.type == .gym } }
     private var allExerciseNames: [String] {
@@ -47,6 +49,13 @@ struct HistoryView: View {
                             .buttonStyle(.plain)
                             .padding(.horizontal, Theme.Layout.screenPadding)
                             .appearAnimation(delay: Double(min(index, 8)) * 0.04 + 0.05)
+                            .contextMenu {
+                                Button(role: .destructive) {
+                                    sessionToDelete = session
+                                } label: {
+                                    Label("Delete Session", systemImage: "trash")
+                                }
+                            }
                         }
 
                         Spacer(minLength: 20)
@@ -57,6 +66,16 @@ struct HistoryView: View {
             .navigationTitle("History")
             .toolbarBackground(Theme.Colors.bg, for: .navigationBar)
             .toolbarColorScheme(.dark, for: .navigationBar)
+            .confirmationDialog("Delete this session? This cannot be undone.", isPresented: Binding(
+                get: { sessionToDelete != nil },
+                set: { if !$0 { sessionToDelete = nil } }
+            ), titleVisibility: .visible) {
+                Button("Delete Session", role: .destructive) {
+                    if let s = sessionToDelete { context.delete(s) }
+                    sessionToDelete = nil
+                }
+                Button("Cancel", role: .cancel) { sessionToDelete = nil }
+            }
         }
     }
 }
@@ -99,7 +118,10 @@ struct SessionRowView: View {
 }
 
 struct SessionDetailView: View {
+    @Environment(\.modelContext) private var context
+    @Environment(\.dismiss) private var dismiss
     let session: TrainingSession
+    @State private var showDeleteConfirm = false
 
     var body: some View {
         ZStack {
@@ -129,6 +151,21 @@ struct SessionDetailView: View {
         .navigationTitle(session.workoutTemplateName ?? "Session")
         .toolbarBackground(Theme.Colors.bg, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .destructiveAction) {
+                Button { showDeleteConfirm = true } label: {
+                    Image(systemName: "trash")
+                        .foregroundStyle(Color(hex: "FF3B5C"))
+                }
+            }
+        }
+        .confirmationDialog("Delete this session? This cannot be undone.", isPresented: $showDeleteConfirm, titleVisibility: .visible) {
+            Button("Delete Session", role: .destructive) {
+                context.delete(session)
+                dismiss()
+            }
+            Button("Cancel", role: .cancel) {}
+        }
     }
 }
 
