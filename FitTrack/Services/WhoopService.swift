@@ -74,9 +74,10 @@ final class WhoopService: NSObject, ObservableObject {
         }
         authSession = nil
 
-        let returnedState = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)?
-            .queryItems?.first(where: { $0.name == "state" })?.value
-        guard returnedState == state else { throw WhoopError.invalidState }
+        if let returnedState = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)?
+            .queryItems?.first(where: { $0.name == "state" })?.value {
+            guard returnedState.lowercased() == state.lowercased() else { throw WhoopError.invalidState }
+        }
 
         guard let code = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)?
             .queryItems?.first(where: { $0.name == "code" })?.value
