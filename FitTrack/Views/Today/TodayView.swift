@@ -10,7 +10,6 @@ private struct ActiveSessionContext: Identifiable {
 struct TodayView: View {
     @Environment(\.modelContext) private var context
     @EnvironmentObject private var whoopService: WhoopService
-    @AppStorage("progressionIncrement") private var incrementKg: Double = 2.5
     @AppStorage("deloadThreshold") private var deloadThreshold: Int = 50
 
     @Query(filter: #Predicate<Program> { $0.isActive }) private var activePrograms: [Program]
@@ -34,35 +33,63 @@ struct TodayView: View {
         return cachedCycles.first { Calendar.current.startOfDay(for: $0.date) == today }
     }
 
+    private var dateLabel: String {
+        Date().formatted(.dateTime.weekday(.wide).day().month(.abbreviated)).uppercased()
+    }
+
     var body: some View {
         NavigationStack {
-            List {
-                if let cycle = todayCycle {
-                    Section { RecoveryBadgeView(score: cycle.recoveryScore) }
-                }
-                Section("Today") {
-                    if let slot = todaySlot {
-                        slotView(slot)
-                    } else {
-                        Text("No program active. Create one in the Program tab.")
-                            .foregroundStyle(.secondary)
+            ZStack {
+                Theme.Colors.bg.ignoresSafeArea()
+                ScrollView {
+                    VStack(spacing: Theme.Layout.cardGap) {
+                        // Date header
+                        HStack {
+                            Text(dateLabel)
+                                .font(Theme.Fonts.rajdhani(12))
+                                .kerning(2)
+                                .foregroundStyle(Theme.Colors.textMuted)
+                            Spacer()
+                            Button { showSettings = true } label: {
+                                Image(systemName: "gearshape")
+                                    .foregroundStyle(Theme.Colors.textMuted)
+                                    .font(.system(size: 18))
+                            }
+                        }
+                        .padding(.horizontal, Theme.Layout.screenPadding)
+                        .padding(.top, 8)
+                        .appearAnimation(delay: 0)
+
+                        // Recovery card
+                        if let cycle = todayCycle {
+                            RecoveryBadgeView(score: cycle.recoveryScore)
+                                .padding(.horizontal, Theme.Layout.screenPadding)
+                                .appearAnimation(delay: 0.05)
+                        }
+
+                        // Today's session card
+                        sessionCard
+                            .padding(.horizontal, Theme.Layout.screenPadding)
+                            .appearAnimation(delay: 0.1)
+
+                        // Stats row
+                        if let program = activeProgram {
+                            statsRow(program: program)
+                                .padding(.horizontal, Theme.Layout.screenPadding)
+                                .appearAnimation(delay: 0.15)
+                        }
+
+                        Spacer(minLength: 20)
                     }
-                }
-                if let week = activeProgram?.currentWeek,
-                   let duration = activeProgram?.durationWeeks {
-                    Section {
-                        Label("Week \(week) of \(duration)", systemImage: "calendar")
-                            .foregroundStyle(.secondary)
-                    }
+                    .padding(.top, 4)
                 }
             }
-            .navigationTitle("Today")
+            .navigationBarHidden(true)
             .task { await refreshWhoop() }
             .fullScreenCover(item: $sessionContext) { ctx in
                 ActiveSessionView(
                     session: ctx.session,
                     template: ctx.template,
-                    incrementKg: incrementKg,
                     recoveryScore: todayCycle?.recoveryScore
                 )
             }
@@ -77,45 +104,121 @@ struct TodayView: View {
                 }
             }
             .sheet(isPresented: $showSettings) {
-                SettingsView()
-                    .environmentObject(WhoopService.shared)
+                SettingsView().environmentObject(WhoopService.shared)
             }
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Settings", systemImage: "gearshape") { showSettings = true }
+        }
+    }
+
+    @ViewBuilder private var sessionCard: some View {
+        if let slot = todaySlot {
+            slotCard(slot)
+        } else {
+            NeonCard(borderColor: Theme.Colors.borderSubtle) {
+                VStack(alignment: .leading, spacing: 6) {
+                    SectionHeader(title: "Today")
+                    Text("No program active")
+                        .font(.system(size: 15))
+                        .foregroundStyle(Theme.Colors.textSecondary)
+                    Text("Create one in the Program tab.")
+                        .font(.system(size: 13))
+                        .foregroundStyle(Theme.Colors.textMuted)
                 }
             }
         }
     }
 
-    @ViewBuilder
-    private func slotView(_ slot: WeeklyScheduleSlot) -> some View {
+    @ViewBuilder private func slotCard(_ slot: WeeklyScheduleSlot) -> some View {
         switch slot.type {
         case .gym:
             if let template = slot.workoutTemplate {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(template.name).font(.headline)
-                    ForEach(template.sortedExercises.prefix(3)) { ex in
-                        let key = "suggested_\(ex.name)_\(template.id)"
-                        let suggestedWeight = UserDefaults.standard.double(forKey: key)
-                        Text("• \(ex.name) — \(ex.targetSets)×\(ex.targetReps) @ \(suggestedWeight > 0 ? "\(suggestedWeight, format: .number)kg" : "—")")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                NeonCard(borderColor: Theme.Colors.borderPurple) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        SectionHeader(title: "Today's Session", color: Theme.Colors.purple)
+                        Text(template.name)
+                            .font(Theme.Fonts.orbitron(18))
+                            .foregroundStyle(Theme.Colors.textPrimary)
+                        VStack(alignment: .leading, spacing: 3) {
+                            ForEach(template.sortedExercises.prefix(3)) { ex in
+                                let key = "suggested_\(ex.name)_\(template.id)"
+                                let w = UserDefaults.standard.double(forKey: key)
+                                Text("· \(ex.name)  \(ex.targetSets)×\(ex.targetReps)\(w > 0 ? " @ \(w.formatted()) lbs" : "")")
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(Theme.Colors.textSecondary)
+                            }
+                            if template.sortedExercises.count > 3 {
+                                Text("+ \(template.sortedExercises.count - 3) more")
+                                    .font(.system(size: 11))
+                                    .foregroundStyle(Theme.Colors.textMuted)
+                            }
+                        }
+                        CyberButton(title: "START SESSION ›") {
+                            startGymSession(template: template)
+                        }
                     }
                 }
-                Button("Start Session") { startGymSession(template: template) }
-                    .buttonStyle(.borderedProminent)
             } else {
-                Text("Gym day — no template assigned").foregroundStyle(.secondary)
+                NeonCard(borderColor: Theme.Colors.borderPurple) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        SectionHeader(title: "Gym Day", color: Theme.Colors.purple)
+                        Text("No template assigned")
+                            .foregroundStyle(Theme.Colors.textSecondary)
+                    }
+                }
             }
         case .sport:
-            Label(slot.activityName ?? "Sport", systemImage: "figure.run")
-            Button("Log Activity") { logActivity(slot: slot) }.buttonStyle(.bordered)
+            NeonCard(borderColor: Theme.Colors.borderCyan) {
+                VStack(alignment: .leading, spacing: 10) {
+                    SectionHeader(title: "Sport")
+                    Text(slot.activityName ?? "Sport Session")
+                        .font(Theme.Fonts.orbitron(16))
+                        .foregroundStyle(Theme.Colors.textPrimary)
+                    CyberButton(title: "LOG ACTIVITY ›", color: Theme.Colors.cyan) {
+                        logActivity(slot: slot)
+                    }
+                }
+            }
         case .competition:
-            Label(slot.activityName ?? "Game Day", systemImage: "trophy")
-            Button("Log Game") { logActivity(slot: slot) }.buttonStyle(.bordered)
+            NeonCard(borderColor: Color(hex: "FF6B00").opacity(0.3)) {
+                VStack(alignment: .leading, spacing: 10) {
+                    SectionHeader(title: "Competition", color: Color(hex: "FF6B00"))
+                    Text(slot.activityName ?? "Game Day")
+                        .font(Theme.Fonts.orbitron(16))
+                        .foregroundStyle(Theme.Colors.textPrimary)
+                    CyberButton(title: "LOG GAME ›", color: Color(hex: "FF6B00")) {
+                        logActivity(slot: slot)
+                    }
+                }
+            }
         case .rest:
-            Label("Rest Day", systemImage: "moon.zzz")
+            NeonCard(borderColor: Theme.Colors.borderSubtle) {
+                HStack(spacing: 14) {
+                    Image(systemName: "moon.zzz.fill")
+                        .font(.system(size: 28))
+                        .foregroundStyle(Theme.Colors.textMuted)
+                    VStack(alignment: .leading, spacing: 3) {
+                        SectionHeader(title: "Rest Day", color: Theme.Colors.textMuted)
+                        Text("Recovery in progress")
+                            .font(.system(size: 13))
+                            .foregroundStyle(Theme.Colors.textMuted)
+                    }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder private func statsRow(program: Program) -> some View {
+        HStack(spacing: 8) {
+            if let week = program.currentWeek {
+                StatTile(value: "W\(week)", label: "OF \(program.durationWeeks)")
+            }
+            if let cycle = todayCycle {
+                StatTile(value: "\(cycle.recoveryScore)%", label: "RECOVERY", color: Theme.Colors.recovery(cycle.recoveryScore))
+            }
+            StatTile(
+                value: "\(recentSessions.filter { Calendar.current.isDate($0.date, equalTo: Date(), toGranularity: .weekOfYear) }.count)",
+                label: "THIS WEEK",
+                color: Theme.Colors.purple
+            )
         }
     }
 
@@ -126,14 +229,7 @@ struct TodayView: View {
         session.programId = activeProgram?.id
         session.weekNumber = activeProgram?.currentWeek
         context.insert(session)
-        prepareSession(
-            session,
-            template: template,
-            incrementKg: incrementKg,
-            recoveryScore: todayCycle?.recoveryScore,
-            deloadThreshold: deloadThreshold,
-            context: context
-        )
+        prepareSession(session, template: template, recoveryScore: todayCycle?.recoveryScore, deloadThreshold: deloadThreshold, context: context)
         sessionContext = ActiveSessionContext(session: session, template: template)
     }
 
