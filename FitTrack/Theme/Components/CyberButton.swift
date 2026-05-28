@@ -10,9 +10,9 @@ struct CyberButton: View {
     var body: some View {
         Button(action: {
             withAnimation(Theme.Anim.bounce) { pressed = true }
+            action()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
                 withAnimation(Theme.Anim.bounce) { pressed = false }
-                action()
             }
         }) {
             Text(title)

@@ -117,4 +117,8 @@ extension View {
     func appearAnimation(delay: Double = 0) -> some View {
         modifier(AppearAnimationModifier(delay: delay))
     }
+
+    @ViewBuilder func `if`(_ condition: Bool, transform: (Self) -> some View) -> some View {
+        if condition { transform(self) } else { self }
+    }
 }

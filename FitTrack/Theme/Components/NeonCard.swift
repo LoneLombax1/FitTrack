@@ -18,9 +18,3 @@ struct NeonCard<Content: View>: View {
             .if(glow) { $0.neonGlow(borderColor, radius: 10) }
     }
 }
-
-extension View {
-    @ViewBuilder func `if`(_ condition: Bool, transform: (Self) -> some View) -> some View {
-        if condition { transform(self) } else { self }
-    }
-}
