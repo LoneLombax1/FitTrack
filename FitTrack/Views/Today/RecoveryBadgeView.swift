@@ -3,39 +3,39 @@ import SwiftUI
 struct RecoveryBadgeView: View {
     let score: Int
 
-    private var color: Color {
-        switch score {
-        case 75...: return .green
-        case 50..<75: return .yellow
-        default: return .red
-        }
-    }
+    private var color: Color { Theme.Colors.recovery(score) }
 
-    private var label: String {
+    private var recommendation: String {
         switch score {
-        case 75...: return "Green — push for overload targets"
-        case 50..<75: return "Moderate — maintain current weights"
-        default: return "Low — consider deload today"
+        case 75...: return "Optimal · push for overload targets"
+        case 50..<75: return "Moderate · maintain current weights"
+        default: return "Low · consider deload today"
         }
     }
 
     var body: some View {
-        HStack(spacing: 12) {
-            ZStack {
-                Circle()
-                    .fill(color.opacity(0.2))
-                    .frame(width: 52, height: 52)
-                Text("\(score)%")
-                    .font(.system(.callout, design: .rounded, weight: .bold))
-                    .foregroundStyle(color)
+        HStack(spacing: 14) {
+            GlowRing(
+                value: Double(score) / 100.0,
+                size: 64,
+                lineWidth: 5,
+                color: color,
+                label: "\(score)"
+            )
+            VStack(alignment: .leading, spacing: 4) {
+                SectionHeader(title: "Whoop Recovery", color: color)
+                Text(recommendation)
+                    .font(.system(size: 13))
+                    .foregroundStyle(Theme.Colors.textSecondary)
             }
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Whoop Recovery")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Text(label).font(.subheadline)
-            }
+            Spacer()
         }
-        .padding(.vertical, 4)
+        .padding(Theme.Layout.screenPadding)
+        .background(Theme.Colors.surface)
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Layout.cardRadius))
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.Layout.cardRadius)
+                .stroke(color.opacity(0.25), lineWidth: 1)
+        )
     }
 }
