@@ -8,29 +8,46 @@ struct ProgramView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                ForEach(programs) { program in
-                    NavigationLink(destination: ProgramDetailView(program: program)) {
-                        ProgramRow(program: program)
+            ZStack {
+                Theme.Colors.bg.ignoresSafeArea()
+                ScrollView {
+                    VStack(spacing: Theme.Layout.cardGap) {
+                        ForEach(Array(programs.enumerated()), id: \.element.id) { index, program in
+                            NavigationLink(destination: ProgramDetailView(program: program)) {
+                                ProgramRow(program: program)
+                            }
+                            .buttonStyle(.plain)
+                            .appearAnimation(delay: Double(index) * 0.05)
+                        }
+                        if programs.isEmpty {
+                            NeonCard(borderColor: Theme.Colors.borderSubtle) {
+                                VStack(spacing: 8) {
+                                    SectionHeader(title: "No Programs")
+                                    Text("Tap + to create your first training program.")
+                                        .font(.system(size: 13))
+                                        .foregroundStyle(Theme.Colors.textSecondary)
+                                }
+                            }
+                            .appearAnimation()
+                        }
                     }
+                    .padding(.horizontal, Theme.Layout.screenPadding)
+                    .padding(.top, 8)
                 }
-                .onDelete(perform: deletePrograms)
             }
             .navigationTitle("Programs")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(Theme.Colors.bg, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button { showBuilder = true } label: { Image(systemName: "plus") }
+                    Button { showBuilder = true } label: {
+                        Image(systemName: "plus")
+                            .foregroundStyle(Theme.Colors.cyan)
+                    }
                 }
             }
-            .sheet(isPresented: $showBuilder) {
-                ProgramBuilderView()
-            }
-        }
-    }
-
-    private func deletePrograms(at offsets: IndexSet) {
-        for index in offsets {
-            context.delete(programs[index])
+            .sheet(isPresented: $showBuilder) { ProgramBuilderView() }
         }
     }
 }
@@ -39,32 +56,46 @@ private struct ProgramRow: View {
     let program: Program
 
     var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 6) {
-                    Text(program.name)
-                        .font(.headline)
-                    if program.isActive {
-                        Text("ACTIVE")
-                            .font(.caption2)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.green, in: Capsule())
+        NeonCard(borderColor: program.isActive ? Theme.Colors.borderPurple : Theme.Colors.borderSubtle) {
+            HStack {
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 8) {
+                        Text(program.name)
+                            .font(Theme.Fonts.orbitron(14))
+                            .foregroundStyle(Theme.Colors.textPrimary)
+                        if program.isActive {
+                            NeonBadge(text: "ACTIVE", color: Theme.Colors.purple)
+                        }
+                    }
+                    if let week = program.currentWeek {
+                        HStack(spacing: 6) {
+                            Text("Week \(week) of \(program.durationWeeks)")
+                                .font(Theme.Fonts.mono(12))
+                                .foregroundStyle(Theme.Colors.textSecondary)
+                            let progress = Double(week) / Double(program.durationWeeks)
+                            GeometryReader { geo in
+                                ZStack(alignment: .leading) {
+                                    RoundedRectangle(cornerRadius: 2)
+                                        .fill(Theme.Colors.borderSubtle)
+                                        .frame(height: 3)
+                                    RoundedRectangle(cornerRadius: 2)
+                                        .fill(Theme.Colors.cyan)
+                                        .frame(width: geo.size.width * progress, height: 3)
+                                }
+                            }
+                            .frame(height: 3)
+                        }
+                    } else {
+                        Text(program.startDate.formatted(date: .abbreviated, time: .omitted))
+                            .font(Theme.Fonts.mono(11))
+                            .foregroundStyle(Theme.Colors.textMuted)
                     }
                 }
-                if let week = program.currentWeek {
-                    Text("Week \(week) of \(program.durationWeeks)")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                } else {
-                    Text(program.startDate.formatted(date: .abbreviated, time: .omitted))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Theme.Colors.textMuted)
             }
-            Spacer()
         }
     }
 }
@@ -76,28 +107,33 @@ struct ProgramDetailView: View {
     @State private var showAddTemplate = false
 
     var body: some View {
-        List {
-            Section("Weekly Schedule") {
-                NavigationLink("Edit schedule") {
-                    WeeklyScheduleGridView(program: program)
-                }
-            }
-
-            Section("Workout Templates") {
-                ForEach(allTemplates) { template in
-                    NavigationLink(template.name) {
-                        WorkoutTemplateEditorView(template: template)
+        ZStack {
+            Theme.Colors.bg.ignoresSafeArea()
+            List {
+                Section {
+                    NavigationLink("Edit schedule") {
+                        WeeklyScheduleGridView(program: program)
                     }
-                }
-                Button("Add workout template") {
-                    showAddTemplate = true
-                }
+                    .foregroundStyle(Theme.Colors.cyan)
+                } header: { SectionHeader(title: "Weekly Schedule") }
+
+                Section {
+                    ForEach(allTemplates) { template in
+                        NavigationLink(template.name) {
+                            WorkoutTemplateEditorView(template: template)
+                        }
+                        .foregroundStyle(Theme.Colors.textPrimary)
+                    }
+                    Button("Add workout template") { showAddTemplate = true }
+                        .foregroundStyle(Theme.Colors.cyan)
+                } header: { SectionHeader(title: "Workout Templates") }
             }
+            .scrollContentBackground(.hidden)
         }
         .navigationTitle(program.name)
-        .sheet(isPresented: $showAddTemplate) {
-            AddTemplateView(program: program)
-        }
+        .toolbarBackground(Theme.Colors.bg, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
+        .sheet(isPresented: $showAddTemplate) { AddTemplateView(program: program) }
     }
 }
 
@@ -109,18 +145,38 @@ struct AddTemplateView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                TextField("Template name", text: $templateName)
+            ZStack {
+                Theme.Colors.bg.ignoresSafeArea()
+                VStack(spacing: Theme.Layout.cardGap) {
+                    NeonCard(borderColor: Theme.Colors.borderCyan) {
+                        VStack(alignment: .leading, spacing: 12) {
+                            SectionHeader(title: "Template Name")
+                            TextField("e.g. Push A", text: $templateName)
+                                .font(Theme.Fonts.mono(16))
+                                .foregroundStyle(Theme.Colors.textPrimary)
+                                .padding(.vertical, 6)
+                        }
+                    }
+                    .padding(.horizontal, Theme.Layout.screenPadding)
+
+                    CyberButton(title: "CREATE TEMPLATE") {
+                        createTemplate()
+                    }
+                    .disabled(templateName.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .padding(.horizontal, Theme.Layout.screenPadding)
+
+                    Spacer()
+                }
+                .padding(.top, 12)
             }
             .navigationTitle("New Template")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(Theme.Colors.bg, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Create") { createTemplate() }
-                        .disabled(templateName.trimmingCharacters(in: .whitespaces).isEmpty)
+                        .foregroundStyle(Theme.Colors.textSecondary)
                 }
             }
         }
