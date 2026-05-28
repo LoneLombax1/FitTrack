@@ -26,9 +26,9 @@ final class WhoopService: NSObject, ObservableObject {
     private let authURL     = "https://api.prod.whoop.com/oauth/oauth2/auth"
     private let tokenURL    = "https://api.prod.whoop.com/oauth/oauth2/token"
     private let cycleURL    = "https://api.prod.whoop.com/developer/v1/cycle"
-    private let recoveryURL = "https://api.prod.whoop.com/developer/v1/recovery"
+    private let cycleV2URL  = "https://api.prod.whoop.com/developer/v2/cycle"
     private let workoutURL  = "https://api.prod.whoop.com/developer/v1/activity/workout"
-    private let sleepURL    = "https://api.prod.whoop.com/developer/v1/activity/sleep"
+    private let sleepURL    = "https://api.prod.whoop.com/developer/v2/activity/sleep"
     private let keychainKey = "com.fittrack.whoop.accessToken"
 
     @Published var isConnected: Bool = false
@@ -118,11 +118,15 @@ final class WhoopService: NSObject, ObservableObject {
             return data
         }
 
-        async let cycleData    = get(cycleURL)
-        async let recoveryData = get(recoveryURL)
+        let rawCycle = try await get(cycleURL + "?limit=1")
+        let cycleId  = WhoopService.parseCycleId(data: rawCycle)
+        let strain   = try? WhoopService.parseLatestStrain(data: rawCycle)
 
-        let strain   = try? WhoopService.parseLatestStrain(data: try await cycleData)
-        let recovery = try? WhoopService.parseLatestRecovery(data: try await recoveryData)
+        var recovery: Int?
+        if let cycleId,
+           let rawRecovery = try? await get("\(cycleV2URL)/\(cycleId)/recovery") {
+            recovery = try? WhoopService.parseLatestRecovery(data: rawRecovery)
+        }
 
         let result = WhoopCycleResult(recoveryScore: recovery, strainScore: strain)
         lastCycle = result
@@ -174,6 +178,12 @@ final class WhoopService: NSObject, ObservableObject {
 
     // MARK: - Parsing (static — unit testable without an instance)
 
+    nonisolated static func parseCycleId(data: Data) -> Int? {
+        struct Record: Decodable { let id: Int }
+        struct Response: Decodable { let records: [Record] }
+        return try? JSONDecoder().decode(Response.self, from: data).records.first?.id
+    }
+
     nonisolated static func parseLatestStrain(data: Data) throws -> Double? {
         struct Score: Decodable { let strain: Double? }
         struct Record: Decodable { let score: Score? }
@@ -181,11 +191,11 @@ final class WhoopService: NSObject, ObservableObject {
         return try JSONDecoder().decode(Response.self, from: data).records.first?.score?.strain
     }
 
+    // Recovery is fetched per-cycle: GET /recovery/{cycleId} — returns a single object, not a list
     nonisolated static func parseLatestRecovery(data: Data) throws -> Int? {
         struct Score: Decodable { let recovery_score: Int? }
         struct Record: Decodable { let score: Score? }
-        struct Response: Decodable { let records: [Record] }
-        return try JSONDecoder().decode(Response.self, from: data).records.first?.score?.recovery_score
+        return try JSONDecoder().decode(Record.self, from: data).score?.recovery_score
     }
 
     nonisolated static func parseLatestWorkout(data: Data) throws -> WhoopWorkoutResult? {

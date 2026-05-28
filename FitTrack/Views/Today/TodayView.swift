@@ -254,10 +254,8 @@ struct TodayView: View {
     @MainActor private func refreshWhoop() async {
         guard whoopService.isConnected else { return }
         guard todayCycle?.isStale != false else { return }
-        async let cycleResult = whoopService.fetchTodayCycle()
-        async let sleepResult = whoopService.fetchTodaySleep()
-        guard let result = try? await cycleResult else { return }
-        let sleep = try? await sleepResult
+        guard let result = try? await whoopService.fetchTodayCycle() else { return }
+        let sleep = try? await whoopService.fetchTodaySleep()
         let cache = WhoopCycleCache(
             date: Date(),
             recoveryScore: result.recoveryScore ?? 0,
