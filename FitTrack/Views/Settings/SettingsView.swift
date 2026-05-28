@@ -3,9 +3,11 @@ import AuthenticationServices
 
 struct SettingsView: View {
     @EnvironmentObject private var whoopService: WhoopService
+    @Environment(\.dismiss) private var dismiss
     @AppStorage("deloadThreshold") private var deloadThreshold: Int = 50
     @AppStorage("programDurationWeeks") private var programDurationWeeks: Int = 8
     @State private var windowContext = WindowContextProvider()
+    @State private var whoopError: String?
 
     var body: some View {
         NavigationStack {
@@ -14,25 +16,27 @@ struct SettingsView: View {
                 List {
                     Section {
                         if whoopService.isConnected {
-                            HStack {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundStyle(Color(hex: "00FF88"))
-                                Text("Connected")
-                                    .foregroundStyle(Theme.Colors.textPrimary)
-                            }
+                            Label("Connected", systemImage: "checkmark.circle.fill")
+                                .foregroundStyle(Color(hex: "00FF88"))
                             Button("Disconnect", role: .destructive) { whoopService.disconnect() }
-                                .foregroundStyle(Color(hex: "FF3B5C"))
                         } else {
-                            HStack {
-                                Image(systemName: "xmark.circle")
-                                    .foregroundStyle(Theme.Colors.textMuted)
-                                Text("Not connected")
-                                    .foregroundStyle(Theme.Colors.textMuted)
-                            }
+                            Label("Not connected", systemImage: "xmark.circle")
+                                .foregroundStyle(Theme.Colors.textMuted)
                             Button("Connect Whoop") {
-                                Task { try? await whoopService.connect(presentationContext: windowContext) }
+                                Task {
+                                    do {
+                                        try await whoopService.connect(presentationContext: windowContext)
+                                    } catch {
+                                        whoopError = error.localizedDescription
+                                    }
+                                }
                             }
                             .foregroundStyle(Theme.Colors.cyan)
+                        }
+                        if let err = whoopError {
+                            Text(err)
+                                .font(.system(size: 12))
+                                .foregroundStyle(Color(hex: "FF3B5C"))
                         }
                     } header: { SectionHeader(title: "Whoop") }
 
@@ -64,6 +68,12 @@ struct SettingsView: View {
             .navigationTitle("Settings")
             .toolbarBackground(Theme.Colors.bg, for: .navigationBar)
             .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { dismiss() }
+                        .foregroundStyle(Theme.Colors.cyan)
+                }
+            }
         }
     }
 }
