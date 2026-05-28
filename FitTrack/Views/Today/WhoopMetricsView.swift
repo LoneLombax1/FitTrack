@@ -7,19 +7,19 @@ struct WhoopMetricsView: View {
         NeonCard(borderColor: Theme.Colors.borderSubtle) {
             HStack(spacing: 0) {
                 metricRing(
-                    value: Double(cycle.recoveryScore) / 100.0,
-                    label: "\(cycle.recoveryScore)",
-                    title: "RECOVERY",
-                    color: Theme.Colors.recovery(cycle.recoveryScore)
+                    value: cycle.strainScore / 21.0,
+                    label: String(format: "%.1f", cycle.strainScore),
+                    title: "STRAIN",
+                    color: Theme.Colors.cyan
                 )
                 Divider()
                     .background(Theme.Colors.borderSubtle)
                     .frame(height: 60)
                 metricRing(
-                    value: cycle.strainScore / 21.0,
-                    label: String(format: "%.1f", cycle.strainScore),
-                    title: "STRAIN",
-                    color: Theme.Colors.cyan
+                    value: Double(cycle.recoveryScore) / 100.0,
+                    label: "\(cycle.recoveryScore)",
+                    title: "RECOVERY",
+                    color: Theme.Colors.recovery(cycle.recoveryScore)
                 )
                 Divider()
                     .background(Theme.Colors.borderSubtle)
