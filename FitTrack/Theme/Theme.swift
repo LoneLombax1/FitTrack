@@ -1,5 +1,6 @@
 // FitTrack/Theme/Theme.swift
 import SwiftUI
+import UIKit
 
 enum Theme {
 
